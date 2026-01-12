@@ -1,0 +1,461 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-01-11",
+  "sources": [
+    "FDA Drug Interactions Table",
+    "DrugBank Database",
+    "Clinical Pharmacology Literature"
+  ],
+  "interactions": [
+    {
+      "id": "INT001",
+      "food": {
+        "name": "Grapefruit",
+        "aliases": ["grapefruit juice", "grapefruit segments", "pomelo", "tangelo"],
+        "category": "citrus_fruit"
+      },
+      "drug": {
+        "names": ["atorvastatin", "simvastatin", "lovastatin"],
+        "brand_names": ["Lipitor", "Zocor", "Mevacor", "Altoprev"],
+        "class": "statins"
+      },
+      "severity": "high",
+      "effect": "Grapefruit inhibits CYP3A4 enzyme, dramatically increasing statin blood levels. This raises risk of severe muscle damage (rhabdomyolysis) and liver toxicity.",
+      "recommendation": "Avoid grapefruit entirely while taking these statins. Consider switching to pravastatin or rosuvastatin which are not affected.",
+      "onset": "immediate",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT002",
+      "food": {
+        "name": "Grapefruit",
+        "aliases": ["grapefruit juice", "grapefruit segments", "pomelo"],
+        "category": "citrus_fruit"
+      },
+      "drug": {
+        "names": ["amlodipine", "felodipine", "nifedipine", "verapamil", "diltiazem"],
+        "brand_names": ["Norvasc", "Plendil", "Procardia", "Calan", "Cardizem"],
+        "class": "calcium_channel_blockers"
+      },
+      "severity": "high",
+      "effect": "Grapefruit increases drug absorption, potentially causing dangerous drops in blood pressure, dizziness, and heart palpitations.",
+      "recommendation": "Avoid grapefruit and grapefruit juice. If consumed accidentally, monitor for dizziness and low blood pressure.",
+      "onset": "immediate",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT003",
+      "food": {
+        "name": "Grapefruit",
+        "aliases": ["grapefruit juice"],
+        "category": "citrus_fruit"
+      },
+      "drug": {
+        "names": ["warfarin"],
+        "brand_names": ["Coumadin", "Jantoven"],
+        "class": "anticoagulants"
+      },
+      "severity": "high",
+      "effect": "Grapefruit can increase warfarin levels, significantly raising bleeding risk.",
+      "recommendation": "Avoid grapefruit. If you must consume it, maintain consistent amounts and monitor INR closely.",
+      "onset": "delayed",
+      "evidence_level": "moderate"
+    },
+    {
+      "id": "INT004",
+      "food": {
+        "name": "Leafy Greens",
+        "aliases": ["spinach", "kale", "collard greens", "swiss chard", "broccoli", "brussels sprouts", "lettuce", "cabbage", "green vegetables"],
+        "category": "vitamin_k_foods"
+      },
+      "drug": {
+        "names": ["warfarin"],
+        "brand_names": ["Coumadin", "Jantoven"],
+        "class": "anticoagulants"
+      },
+      "severity": "high",
+      "effect": "Vitamin K in leafy greens counteracts warfarin's blood-thinning effect, reducing its effectiveness and increasing clot risk.",
+      "recommendation": "Maintain CONSISTENT vitamin K intake daily. Don't suddenly increase or decrease leafy green consumption. Inform your doctor of dietary changes.",
+      "onset": "delayed",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT005",
+      "food": {
+        "name": "Dairy Products",
+        "aliases": ["milk", "cheese", "yogurt", "cream", "calcium supplements", "antacids"],
+        "category": "calcium_rich"
+      },
+      "drug": {
+        "names": ["ciprofloxacin", "levofloxacin", "moxifloxacin", "tetracycline", "doxycycline", "minocycline"],
+        "brand_names": ["Cipro", "Levaquin", "Avelox", "Sumycin", "Vibramycin", "Minocin"],
+        "class": "antibiotics"
+      },
+      "severity": "medium",
+      "effect": "Calcium binds to these antibiotics in the gut, reducing absorption by up to 50%. This may cause treatment failure.",
+      "recommendation": "Take antibiotics 2 hours before OR 6 hours after consuming dairy products or calcium supplements.",
+      "onset": "immediate",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT006",
+      "food": {
+        "name": "Alcohol",
+        "aliases": ["beer", "wine", "liquor", "spirits", "alcoholic beverages", "ethanol"],
+        "category": "alcohol"
+      },
+      "drug": {
+        "names": ["acetaminophen", "paracetamol"],
+        "brand_names": ["Tylenol", "Panadol", "Excedrin"],
+        "class": "analgesics"
+      },
+      "severity": "high",
+      "effect": "Alcohol increases risk of severe liver damage when combined with acetaminophen, even at normal doses.",
+      "recommendation": "Avoid alcohol while taking acetaminophen. If you drink regularly (3+ drinks/day), consult doctor before using.",
+      "onset": "delayed",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT007",
+      "food": {
+        "name": "Alcohol",
+        "aliases": ["beer", "wine", "liquor", "spirits"],
+        "category": "alcohol"
+      },
+      "drug": {
+        "names": ["metformin"],
+        "brand_names": ["Glucophage", "Fortamet", "Riomet"],
+        "class": "antidiabetics"
+      },
+      "severity": "high",
+      "effect": "Alcohol increases risk of lactic acidosis, a rare but potentially fatal condition. Also causes unpredictable blood sugar changes.",
+      "recommendation": "Limit alcohol consumption. Never drink on an empty stomach. Monitor blood sugar closely if you do drink.",
+      "onset": "delayed",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT008",
+      "food": {
+        "name": "Caffeine",
+        "aliases": ["coffee", "tea", "energy drinks", "cola", "chocolate", "espresso", "caffeine pills"],
+        "category": "stimulants"
+      },
+      "drug": {
+        "names": ["theophylline", "aminophylline"],
+        "brand_names": ["Theo-24", "Elixophyllin", "Theochron"],
+        "class": "bronchodilators"
+      },
+      "severity": "medium",
+      "effect": "Both caffeine and theophylline are stimulants. Combined, they can cause increased heart rate, anxiety, insomnia, and seizures.",
+      "recommendation": "Limit caffeine intake to under 200mg/day (about 2 cups of coffee). Watch for tremors, rapid heartbeat, or anxiety.",
+      "onset": "immediate",
+      "evidence_level": "moderate"
+    },
+    {
+      "id": "INT009",
+      "food": {
+        "name": "Bananas",
+        "aliases": ["banana", "plantain", "potassium supplements", "potassium-rich foods", "oranges", "potatoes", "tomatoes"],
+        "category": "high_potassium"
+      },
+      "drug": {
+        "names": ["lisinopril", "enalapril", "ramipril", "benazepril", "captopril"],
+        "brand_names": ["Zestril", "Prinivil", "Vasotec", "Altace", "Lotensin", "Capoten"],
+        "class": "ace_inhibitors"
+      },
+      "severity": "medium",
+      "effect": "ACE inhibitors cause potassium retention. Combined with high-potassium foods, this can lead to hyperkalemia (dangerous high potassium levels), causing heart arrhythmias.",
+      "recommendation": "Maintain moderate, consistent potassium intake. Avoid potassium supplements and salt substitutes. Get regular blood tests.",
+      "onset": "delayed",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT010",
+      "food": {
+        "name": "Bananas",
+        "aliases": ["banana", "potassium-rich foods", "oranges", "potatoes"],
+        "category": "high_potassium"
+      },
+      "drug": {
+        "names": ["spironolactone", "eplerenone", "triamterene", "amiloride"],
+        "brand_names": ["Aldactone", "Inspra", "Dyrenium", "Midamor"],
+        "class": "potassium_sparing_diuretics"
+      },
+      "severity": "high",
+      "effect": "These diuretics retain potassium. High-potassium foods can cause life-threatening hyperkalemia with cardiac effects.",
+      "recommendation": "Strictly limit high-potassium foods. Avoid potassium supplements and salt substitutes entirely. Regular potassium monitoring required.",
+      "onset": "delayed",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT011",
+      "food": {
+        "name": "Tyramine-Rich Foods",
+        "aliases": ["aged cheese", "cheddar", "parmesan", "blue cheese", "soy sauce", "fermented foods", "sauerkraut", "kimchi", "salami", "pepperoni", "red wine", "tap beer"],
+        "category": "tyramine_rich"
+      },
+      "drug": {
+        "names": ["phenelzine", "tranylcypromine", "isocarboxazid", "selegiline"],
+        "brand_names": ["Nardil", "Parnate", "Marplan", "Emsam", "Zelapar"],
+        "class": "maoi_antidepressants"
+      },
+      "severity": "high",
+      "effect": "MAOIs prevent tyramine breakdown. Tyramine accumulation causes sudden, severe blood pressure spikes (hypertensive crisis) which can be fatal.",
+      "recommendation": "STRICTLY avoid all tyramine-rich foods while taking MAOIs and for 2 weeks after stopping. This is critical.",
+      "onset": "immediate",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT012",
+      "food": {
+        "name": "Licorice",
+        "aliases": ["black licorice", "licorice root", "licorice candy", "licorice tea", "glycyrrhiza"],
+        "category": "herbal"
+      },
+      "drug": {
+        "names": ["digoxin"],
+        "brand_names": ["Lanoxin", "Digitek"],
+        "class": "cardiac_glycosides"
+      },
+      "severity": "high",
+      "effect": "Licorice causes potassium loss, increasing digoxin toxicity risk. Can cause dangerous heart rhythm disturbances.",
+      "recommendation": "Avoid licorice-containing products entirely while on digoxin. Check ingredient labels carefully.",
+      "onset": "delayed",
+      "evidence_level": "moderate"
+    },
+    {
+      "id": "INT013",
+      "food": {
+        "name": "Licorice",
+        "aliases": ["black licorice", "licorice root", "licorice candy"],
+        "category": "herbal"
+      },
+      "drug": {
+        "names": ["hydrochlorothiazide", "furosemide", "bumetanide", "chlorthalidone"],
+        "brand_names": ["Microzide", "Lasix", "Bumex", "Thalitone"],
+        "class": "diuretics"
+      },
+      "severity": "medium",
+      "effect": "Both licorice and these diuretics cause potassium loss. Combined effect can cause severe hypokalemia with muscle weakness and heart issues.",
+      "recommendation": "Avoid licorice while on diuretics. If potassium levels drop, supplementation may be needed.",
+      "onset": "delayed",
+      "evidence_level": "moderate"
+    },
+    {
+      "id": "INT014",
+      "food": {
+        "name": "Fiber",
+        "aliases": ["high fiber foods", "bran", "whole grains", "fiber supplements", "psyllium", "metamucil", "oatmeal"],
+        "category": "fiber"
+      },
+      "drug": {
+        "names": ["levothyroxine", "liothyronine"],
+        "brand_names": ["Synthroid", "Levoxyl", "Tirosint", "Cytomel"],
+        "class": "thyroid_hormones"
+      },
+      "severity": "medium",
+      "effect": "Fiber binds to thyroid medication, reducing absorption. Can lead to inadequate thyroid hormone levels.",
+      "recommendation": "Take thyroid medication on empty stomach, 30-60 minutes before eating. Separate from fiber supplements by 4+ hours.",
+      "onset": "immediate",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT015",
+      "food": {
+        "name": "Grapefruit",
+        "aliases": ["grapefruit juice"],
+        "category": "citrus_fruit"
+      },
+      "drug": {
+        "names": ["cyclosporine", "tacrolimus", "sirolimus"],
+        "brand_names": ["Neoral", "Sandimmune", "Prograf", "Rapamune"],
+        "class": "immunosuppressants"
+      },
+      "severity": "high",
+      "effect": "Grapefruit dramatically increases immunosuppressant levels, risking severe toxicity including kidney damage.",
+      "recommendation": "Absolutely avoid grapefruit and grapefruit juice. This interaction can cause organ rejection or severe side effects.",
+      "onset": "immediate",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT016",
+      "food": {
+        "name": "Alcohol",
+        "aliases": ["beer", "wine", "liquor"],
+        "category": "alcohol"
+      },
+      "drug": {
+        "names": ["metronidazole"],
+        "brand_names": ["Flagyl", "MetroGel"],
+        "class": "antibiotics"
+      },
+      "severity": "high",
+      "effect": "Causes severe disulfiram-like reaction: intense nausea, vomiting, flushing, rapid heartbeat, and headache.",
+      "recommendation": "Avoid ALL alcohol during treatment and for 3 days after completing metronidazole. This includes alcohol in food and mouthwash.",
+      "onset": "immediate",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT017",
+      "food": {
+        "name": "Grapefruit",
+        "aliases": ["grapefruit juice"],
+        "category": "citrus_fruit"
+      },
+      "drug": {
+        "names": ["sildenafil", "tadalafil", "vardenafil"],
+        "brand_names": ["Viagra", "Cialis", "Levitra"],
+        "class": "pde5_inhibitors"
+      },
+      "severity": "medium",
+      "effect": "Grapefruit increases drug levels, potentially causing severe headache, flushing, and dangerous blood pressure drops.",
+      "recommendation": "Avoid large amounts of grapefruit juice. A small amount (half a glass) is generally acceptable.",
+      "onset": "immediate",
+      "evidence_level": "moderate"
+    },
+    {
+      "id": "INT018",
+      "food": {
+        "name": "Cranberry",
+        "aliases": ["cranberry juice", "cranberry supplements", "cranberry extract"],
+        "category": "berry"
+      },
+      "drug": {
+        "names": ["warfarin"],
+        "brand_names": ["Coumadin", "Jantoven"],
+        "class": "anticoagulants"
+      },
+      "severity": "medium",
+      "effect": "Cranberry may enhance warfarin's blood-thinning effect, increasing bleeding risk.",
+      "recommendation": "Limit cranberry juice to 8 oz/day. Avoid cranberry supplements. Monitor INR if consuming regularly.",
+      "onset": "delayed",
+      "evidence_level": "moderate"
+    },
+    {
+      "id": "INT019",
+      "food": {
+        "name": "St. John's Wort",
+        "aliases": ["st johns wort", "hypericum", "st. john's wort tea", "st. john's wort supplement"],
+        "category": "herbal_supplement"
+      },
+      "drug": {
+        "names": ["sertraline", "fluoxetine", "paroxetine", "citalopram", "escitalopram", "venlafaxine", "duloxetine"],
+        "brand_names": ["Zoloft", "Prozac", "Paxil", "Celexa", "Lexapro", "Effexor", "Cymbalta"],
+        "class": "antidepressants"
+      },
+      "severity": "high",
+      "effect": "Combining St. John's Wort with SSRIs/SNRIs can cause serotonin syndrome - a potentially life-threatening condition with confusion, rapid heart rate, and high fever.",
+      "recommendation": "Do NOT take St. John's Wort with any antidepressant. If switching, allow 2+ weeks washout period.",
+      "onset": "delayed",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT020",
+      "food": {
+        "name": "Ginger",
+        "aliases": ["ginger root", "ginger tea", "ginger supplements", "ginger ale"],
+        "category": "herbal"
+      },
+      "drug": {
+        "names": ["warfarin", "aspirin", "clopidogrel", "rivaroxaban", "apixaban"],
+        "brand_names": ["Coumadin", "Bayer", "Plavix", "Xarelto", "Eliquis"],
+        "class": "blood_thinners"
+      },
+      "severity": "medium",
+      "effect": "Ginger has blood-thinning properties. Combined with anticoagulants, it may increase bleeding risk.",
+      "recommendation": "Use culinary amounts of ginger sparingly. Avoid ginger supplements. Report unusual bruising or bleeding.",
+      "onset": "delayed",
+      "evidence_level": "moderate"
+    },
+    {
+      "id": "INT021",
+      "food": {
+        "name": "Grapefruit",
+        "aliases": ["grapefruit juice"],
+        "category": "citrus_fruit"
+      },
+      "drug": {
+        "names": ["buspirone"],
+        "brand_names": ["Buspar"],
+        "class": "anxiolytics"
+      },
+      "severity": "medium",
+      "effect": "Grapefruit can significantly increase buspirone levels, causing excessive sedation and dizziness.",
+      "recommendation": "Avoid grapefruit juice while taking buspirone.",
+      "onset": "immediate",
+      "evidence_level": "moderate"
+    },
+    {
+      "id": "INT022",
+      "food": {
+        "name": "Alcohol",
+        "aliases": ["beer", "wine", "liquor"],
+        "category": "alcohol"
+      },
+      "drug": {
+        "names": ["alprazolam", "lorazepam", "diazepam", "clonazepam", "zolpidem", "eszopiclone"],
+        "brand_names": ["Xanax", "Ativan", "Valium", "Klonopin", "Ambien", "Lunesta"],
+        "class": "benzodiazepines_sedatives"
+      },
+      "severity": "high",
+      "effect": "Both are CNS depressants. Combined, they can cause extreme sedation, respiratory depression, coma, and death.",
+      "recommendation": "Do NOT drink alcohol while taking these medications. This combination can be fatal.",
+      "onset": "immediate",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT023",
+      "food": {
+        "name": "Soy Products",
+        "aliases": ["soy milk", "tofu", "edamame", "soy protein", "soy sauce", "tempeh", "miso"],
+        "category": "soy"
+      },
+      "drug": {
+        "names": ["levothyroxine"],
+        "brand_names": ["Synthroid", "Levoxyl"],
+        "class": "thyroid_hormones"
+      },
+      "severity": "medium",
+      "effect": "Soy can interfere with thyroid hormone absorption, potentially reducing medication effectiveness.",
+      "recommendation": "Take levothyroxine 4 hours before or after consuming soy products. Maintain consistent soy intake.",
+      "onset": "immediate",
+      "evidence_level": "moderate"
+    },
+    {
+      "id": "INT024",
+      "food": {
+        "name": "Iron-Rich Foods",
+        "aliases": ["iron supplements", "red meat", "fortified cereals", "spinach", "multivitamins with iron"],
+        "category": "mineral_rich"
+      },
+      "drug": {
+        "names": ["levothyroxine", "ciprofloxacin", "tetracycline", "levodopa"],
+        "brand_names": ["Synthroid", "Cipro", "Sumycin", "Sinemet"],
+        "class": "various"
+      },
+      "severity": "medium",
+      "effect": "Iron binds to these medications, significantly reducing their absorption and effectiveness.",
+      "recommendation": "Separate iron supplements from these medications by at least 4 hours.",
+      "onset": "immediate",
+      "evidence_level": "strong"
+    },
+    {
+      "id": "INT025",
+      "food": {
+        "name": "Vitamin E",
+        "aliases": ["vitamin e supplements", "vitamin e oil", "alpha-tocopherol"],
+        "category": "supplement"
+      },
+      "drug": {
+        "names": ["warfarin", "aspirin", "clopidogrel"],
+        "brand_names": ["Coumadin", "Bayer", "Plavix"],
+        "class": "blood_thinners"
+      },
+      "severity": "medium",
+      "effect": "High-dose vitamin E has antiplatelet effects, increasing bleeding risk when combined with blood thinners.",
+      "recommendation": "Avoid vitamin E supplements over 400 IU/day while on blood thinners. Dietary vitamin E is generally safe.",
+      "onset": "delayed",
+      "evidence_level": "moderate"
+    }
+  ]
+}
