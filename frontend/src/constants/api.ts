@@ -5,7 +5,7 @@ export const ENDPOINTS = {
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',
     LOGOUT: '/auth/logout',
-    PROFILE: '/auth/profile',
+    PROFILE: '/auth/me',
   },
   DRUGS: {
     SEARCH: '/drugs/search',
@@ -26,6 +26,20 @@ export const ENDPOINTS = {
     ADD: '/medications',
     REMOVE: (id: number) => `/medications/${id}`,
     UPDATE: (id: number) => `/medications/${id}`,
+  },
+  FOOD_DIARY: {
+    LIST: '/food-diary',
+    TODAY: '/food-diary/today',
+    ADD: '/food-diary',
+    REMOVE: (id: number) => `/food-diary/${id}`,
+    UPDATE: (id: number) => `/food-diary/${id}`,
+    SUMMARY: '/food-diary/summary',
+  },
+  INTERACTION_HISTORY: {
+    LIST: '/interaction-history',
+    SAVE: '/interaction-history',
+    DELETE: (id: number) => `/interaction-history/${id}`,
+    CLEAR: '/interaction-history',
   },
 } as const
 

@@ -26,6 +26,8 @@ class User(db.Model):
     # Relationships
     medications = db.relationship('UserMedication', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     search_history = db.relationship('SearchHistory', backref='user', lazy='dynamic', cascade='all, delete-orphan')
+    food_logs = db.relationship('FoodLog', backref='user', lazy='dynamic', cascade='all, delete-orphan')
+    interaction_checks = db.relationship('InteractionCheck', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     
     def __init__(self, email: str, password: str, first_name: str = None, last_name: str = None):
         self.email = email.lower().strip()

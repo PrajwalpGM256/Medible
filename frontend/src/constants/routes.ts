@@ -7,7 +7,8 @@ export const ROUTES = {
   DASHBOARD: '/dashboard',
   MEDICATIONS: '/medications',
   INTERACTIONS: '/interactions',
-  CHECK: '/check',
+  NUTRITION: '/nutrition',
+  FOOD_DIARY: '/food-diary',
   PROFILE: '/profile',
 } as const
 
@@ -18,15 +19,17 @@ export const ROUTE_NAMES = {
   DASHBOARD: 'dashboard',
   MEDICATIONS: 'medications',
   INTERACTIONS: 'interactions',
-  CHECK: 'check',
+  NUTRITION: 'nutrition',
+  FOOD_DIARY: 'food-diary',
   PROFILE: 'profile',
 } as const
 
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', to: ROUTES.DASHBOARD, icon: 'LayoutDashboard', requiresAuth: true },
   { label: 'My Medications', to: ROUTES.MEDICATIONS, icon: 'Pill', requiresAuth: true },
-  { label: 'Interactions', to: ROUTES.INTERACTIONS, icon: 'AlertTriangle', requiresAuth: true },
-  { label: 'Food Check', to: ROUTES.CHECK, icon: 'Search', requiresAuth: true },
+  { label: 'Food Diary', to: ROUTES.FOOD_DIARY, icon: 'BookOpen', requiresAuth: true },
+  { label: 'Check Interactions', to: ROUTES.INTERACTIONS, icon: 'AlertTriangle', requiresAuth: true },
+  { label: 'Food Nutrition', to: ROUTES.NUTRITION, icon: 'Apple', requiresAuth: true },
 ]
 
 export const AUTH_NAV_ITEMS: NavItem[] = [

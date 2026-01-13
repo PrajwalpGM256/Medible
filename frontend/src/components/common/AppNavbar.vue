@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { Menu, X } from 'lucide-vue-next'
 import { Button } from '@/components/ui/Button'
 import AppLogo from './AppLogo.vue'
@@ -9,8 +9,14 @@ import { useAuthStore } from '@/stores/auth'
 import { ROUTES, NAV_ITEMS } from '@/constants'
 
 const auth = useAuthStore()
+const router = useRouter()
 const mobileMenuOpen = ref(false)
 const toggleMenu = () => { mobileMenuOpen.value = !mobileMenuOpen.value }
+
+function handleLogout() {
+  auth.logout()
+  router.push(ROUTES.LOGIN)
+}
 </script>
 
 <template>
@@ -41,7 +47,7 @@ const toggleMenu = () => { mobileMenuOpen.value = !mobileMenuOpen.value }
             <RouterLink :to="ROUTES.PROFILE" class="hidden sm:block">
               <Button variant="ghost">Profile</Button>
             </RouterLink>
-            <Button variant="outline" @click="auth.logout">Logout</Button>
+            <Button variant="outline" @click="handleLogout">Logout</Button>
           </template>
           <Button variant="ghost" size="icon" class="md:hidden" @click="toggleMenu">
             <Menu v-if="!mobileMenuOpen" class="h-5 w-5" />

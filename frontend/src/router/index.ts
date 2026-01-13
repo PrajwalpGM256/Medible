@@ -36,13 +36,19 @@ const router = createRouter({
     {
       path: '/interactions',
       name: 'interactions',
-      component: () => import('@/views/InteractionsView.vue'),
+      component: () => import('@/views/CheckInteractionView.vue'),
       meta: { requiresAuth: true }
     },
     {
-      path: '/check',
-      name: 'check',
-      component: () => import('@/views/CheckInteractionView.vue'),
+      path: '/nutrition',
+      name: 'nutrition',
+      component: () => import('@/views/NutritionView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/food-diary',
+      name: 'food-diary',
+      component: () => import('@/views/FoodDiaryView.vue'),
       meta: { requiresAuth: true }
     },
     {
@@ -55,7 +61,7 @@ const router = createRouter({
 })
 
 // Navigation guards
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore()
   
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {

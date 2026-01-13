@@ -19,6 +19,11 @@ const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
 
+function fillDemoCredentials() {
+  email.value = 'demo@medible.com'
+  password.value = 'Demo123!'
+}
+
 async function handleSubmit() {
   const success = await auth.login(email.value, password.value)
   if (success) {
@@ -64,6 +69,18 @@ async function handleSubmit() {
             {{ content.noAccount }}
             <RouterLink :to="ROUTES.REGISTER" class="font-medium text-primary hover:underline">{{ content.signUp }}</RouterLink>
           </p>
+          
+          <!-- Demo Credentials -->
+          <div class="mt-6 rounded-lg border border-dashed border-border bg-muted/50 p-4">
+            <p class="mb-2 text-center text-xs font-medium uppercase tracking-wide text-muted-foreground">Demo Account</p>
+            <div class="space-y-1 text-center text-sm">
+              <p><span class="text-muted-foreground">Email:</span> <code class="rounded bg-background px-1.5 py-0.5 font-mono text-xs">demo@medible.com</code></p>
+              <p><span class="text-muted-foreground">Password:</span> <code class="rounded bg-background px-1.5 py-0.5 font-mono text-xs">Demo123!</code></p>
+            </div>
+            <Button variant="outline" size="sm" class="mt-3 w-full" @click="fillDemoCredentials">
+              Use Demo Account
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

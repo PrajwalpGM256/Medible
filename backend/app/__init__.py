@@ -104,6 +104,8 @@ def create_app(config_name=None):
     from app.routes.health import health_bp
     from app.routes.auth import auth_bp
     from app.routes.medications import medications_bp
+    from app.routes.food_diary import food_diary_bp
+    from app.routes.interaction_history import interaction_history_bp
     
     # API v1 routes
     app.register_blueprint(health_bp, url_prefix='/api/v1')
@@ -112,6 +114,8 @@ def create_app(config_name=None):
     app.register_blueprint(interactions_bp, url_prefix='/api/v1/interactions')
     app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
     app.register_blueprint(medications_bp, url_prefix='/api/v1/medications')
+    app.register_blueprint(food_diary_bp, url_prefix='/api/v1/food-diary')
+    app.register_blueprint(interaction_history_bp, url_prefix='/api/v1/interaction-history')
     
     # Root endpoint
     @app.route('/')
@@ -131,6 +135,11 @@ def create_app(config_name=None):
                     'list': 'GET /api/v1/medications',
                     'add': 'POST /api/v1/medications',
                     'check_food': 'POST /api/v1/medications/check-food'
+                },
+                'food_diary': {
+                    'today': 'GET /api/v1/food-diary/today',
+                    'add': 'POST /api/v1/food-diary',
+                    'summary': 'GET /api/v1/food-diary/summary?days=7'
                 },
                 'drugs': '/api/v1/drugs/search?q=aspirin',
                 'foods': '/api/v1/foods/search?q=banana',

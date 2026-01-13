@@ -12,7 +12,7 @@ const router = useRouter()
 
 function handleLogout() {
   auth.logout()
-  router.push(ROUTES.LANDING)
+  router.push(ROUTES.LOGIN)
 }
 </script>
 

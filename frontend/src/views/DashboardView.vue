@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { Pill, AlertTriangle, Search, Plus, ArrowRight } from 'lucide-vue-next'
+import { Pill, AlertTriangle, Search, Plus, ArrowRight, BookOpen } from 'lucide-vue-next'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import AppNavbar from '@/components/common/AppNavbar.vue'
@@ -9,16 +9,41 @@ import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useMedicationsStore } from '@/stores/medications'
 import { ROUTES, DASHBOARD_CONTENT, SEVERITY_CONFIG } from '@/constants'
+import { interactionHistoryApi } from '@/services/api'
 
 const auth = useAuthStore()
 const meds = useMedicationsStore()
 
-onMounted(() => { meds.fetchMedications() })
+// Interaction history stats
+const interactionHistory = ref<any[]>([])
+const historyLoading = ref(false)
+
+const historyHighRiskCount = computed(() => 
+  interactionHistory.value.filter(h => h.max_severity === 'high').length
+)
+const historyTotalChecks = computed(() => interactionHistory.value.length)
+
+async function fetchInteractionHistory() {
+  historyLoading.value = true
+  try {
+    const { data } = await interactionHistoryApi.getAll(50)
+    interactionHistory.value = data?.data?.history || []
+  } catch (err) {
+    console.error('Failed to fetch interaction history:', err)
+  } finally {
+    historyLoading.value = false
+  }
+}
+
+onMounted(() => { 
+  meds.fetchMedications()
+  fetchInteractionHistory()
+})
 
 const quickActions = [
   { icon: Plus, label: 'Add Medication', to: ROUTES.MEDICATIONS, color: 'bg-teal-500' },
-  { icon: Search, label: 'Check Food', to: ROUTES.CHECK, color: 'bg-cyan-500' },
-  { icon: AlertTriangle, label: 'View Alerts', to: ROUTES.INTERACTIONS, color: 'bg-amber-500' },
+  { icon: BookOpen, label: 'Food Diary', to: ROUTES.FOOD_DIARY, color: 'bg-cyan-500' },
+  { icon: Search, label: 'Check Interactions', to: ROUTES.INTERACTIONS, color: 'bg-amber-500' },
 ]
 </script>
 
@@ -37,16 +62,16 @@ const quickActions = [
             <div><p class="text-2xl font-bold text-foreground">{{ meds.count }}</p><p class="text-sm text-muted-foreground">Medications</p></div>
           </CardContent>
         </Card>
-        <Card :class="{ 'border-amber-500/50': meds.hasHighRisk }">
+        <Card :class="{ 'border-amber-500/50': historyHighRiskCount > 0 }">
           <CardContent class="flex items-center gap-4 p-6">
             <div class="rounded-xl bg-amber-500/10 p-3"><AlertTriangle class="h-6 w-6 text-amber-600 dark:text-amber-400" /></div>
-            <div><p class="text-2xl font-bold text-foreground">{{ meds.highRiskCount }}</p><p class="text-sm text-muted-foreground">High Risk Alerts</p></div>
+            <div><p class="text-2xl font-bold text-foreground">{{ historyHighRiskCount }}</p><p class="text-sm text-muted-foreground">High Risk Alerts</p></div>
           </CardContent>
         </Card>
         <Card>
           <CardContent class="flex items-center gap-4 p-6">
             <div class="rounded-xl bg-emerald-500/10 p-3"><Search class="h-6 w-6 text-emerald-600 dark:text-emerald-400" /></div>
-            <div><p class="text-2xl font-bold text-foreground">{{ meds.interactions.length }}</p><p class="text-sm text-muted-foreground">Known Interactions</p></div>
+            <div><p class="text-2xl font-bold text-foreground">{{ historyTotalChecks }}</p><p class="text-sm text-muted-foreground">Interaction Checks</p></div>
           </CardContent>
         </Card>
       </div>
@@ -85,20 +110,46 @@ const quickActions = [
         </Card>
         <Card>
           <CardHeader class="flex flex-row items-center justify-between">
-            <CardTitle>{{ DASHBOARD_CONTENT.recentInteractions }}</CardTitle>
+            <CardTitle>Recent Alerts</CardTitle>
             <RouterLink :to="ROUTES.INTERACTIONS"><Button variant="ghost" size="sm">View All</Button></RouterLink>
           </CardHeader>
           <CardContent>
-            <div v-if="meds.interactions.length === 0" class="py-8 text-center">
+            <LoadingSpinner v-if="historyLoading" />
+            <div v-else-if="interactionHistory.length === 0" class="py-8 text-center">
               <AlertTriangle class="mx-auto h-12 w-12 text-muted-foreground/50" />
-              <p class="mt-4 text-muted-foreground">No interactions found</p>
+              <p class="mt-4 text-muted-foreground">No interaction checks yet</p>
             </div>
             <div v-else class="space-y-3">
-              <div v-for="interaction in meds.interactions.slice(0, 4)" :key="`${interaction.drugName}-${interaction.foodName}`" :class="['rounded-lg border p-3', SEVERITY_CONFIG[interaction.severity].bgClass, SEVERITY_CONFIG[interaction.severity].borderClass]">
+              <div 
+                v-for="check in interactionHistory.filter(h => h.had_interaction).slice(0, 4)" 
+                :key="check.id" 
+                :class="['rounded-lg border p-3', 
+                  check.max_severity === 'high' ? 'bg-red-500/5 border-red-500/30' : 
+                  check.max_severity === 'moderate' ? 'bg-amber-500/5 border-amber-500/30' : 
+                  'bg-yellow-500/5 border-yellow-500/30']"
+              >
                 <div class="flex items-start justify-between gap-2">
-                  <div><p :class="['font-medium', SEVERITY_CONFIG[interaction.severity].textClass]">{{ interaction.drugName }} + {{ interaction.foodName }}</p><p class="mt-1 text-sm text-muted-foreground line-clamp-2">{{ interaction.effect }}</p></div>
-                  <span :class="['shrink-0 rounded-full px-2 py-0.5 text-xs font-medium', SEVERITY_CONFIG[interaction.severity].bgClass, SEVERITY_CONFIG[interaction.severity].textClass]">{{ SEVERITY_CONFIG[interaction.severity].label }}</span>
+                  <div>
+                    <p :class="['font-medium', 
+                      check.max_severity === 'high' ? 'text-red-600 dark:text-red-400' : 
+                      check.max_severity === 'moderate' ? 'text-amber-600 dark:text-amber-400' : 
+                      'text-yellow-600 dark:text-yellow-400']">
+                      {{ check.food_name }}
+                    </p>
+                    <p class="mt-1 text-sm text-muted-foreground">
+                      {{ check.interaction_count }} interaction(s) · {{ check.medications_checked?.length || 0 }} medication(s)
+                    </p>
+                  </div>
+                  <span :class="['shrink-0 rounded-full px-2 py-0.5 text-xs font-medium',
+                    check.max_severity === 'high' ? 'bg-red-500/10 text-red-600 dark:text-red-400' : 
+                    check.max_severity === 'moderate' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 
+                    'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400']">
+                    {{ check.max_severity === 'high' ? 'High Risk' : check.max_severity === 'moderate' ? 'Moderate' : 'Low Risk' }}
+                  </span>
                 </div>
+              </div>
+              <div v-if="interactionHistory.filter(h => h.had_interaction).length === 0" class="py-4 text-center text-muted-foreground">
+                No alerts - all checks are safe!
               </div>
             </div>
           </CardContent>
