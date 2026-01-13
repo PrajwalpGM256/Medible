@@ -71,7 +71,10 @@ def create_app(config_name=None):
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
-    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+    
+    # CORS - use configured origins
+    cors_origins = app.config.get('CORS_ORIGINS', ['*'])
+    CORS(app, resources={r"/api/*": {"origins": cors_origins}}, supports_credentials=True)
     
     # Setup logging
     setup_logging(app)

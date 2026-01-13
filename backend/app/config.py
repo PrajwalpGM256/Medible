@@ -9,12 +9,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def get_database_url():
+    """Get database URL, fixing Railway's postgres:// to postgresql://"""
+    url = os.getenv('DATABASE_URL', 'sqlite:///medible.db')
+    # Railway uses postgres:// but SQLAlchemy needs postgresql://
+    if url.startswith('postgres://'):
+        url = url.replace('postgres://', 'postgresql://', 1)
+    return url
+
+
 class Config:
     """Base configuration"""
     SECRET_KEY = os.getenv('SECRET_KEY', 'medible-dev-secret-key-change-in-prod')
     
     # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///medible.db')
+    SQLALCHEMY_DATABASE_URI = get_database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_pre_ping": True,  # Verify connections before using
@@ -25,6 +34,9 @@ class Config:
     USDA_API_KEY = os.getenv('USDA_API_KEY', '')
     OPENFDA_BASE_URL = 'https://api.fda.gov/drug'
     USDA_BASE_URL = 'https://api.nal.usda.gov/fdc/v1'
+    
+    # CORS - Frontend URLs allowed to access the API
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:5173,http://localhost:3000').split(',')
     
     # Rate Limiting
     RATELIMIT_ENABLED = True
@@ -42,6 +54,7 @@ class DevelopmentConfig(Config):
     """Development configuration"""
     DEBUG = True
     RATELIMIT_ENABLED = False  # Disable rate limiting in dev
+    CORS_ORIGINS = ['*']  # Allow all origins in dev
 
 
 class ProductionConfig(Config):
