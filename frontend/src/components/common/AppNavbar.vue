@@ -7,11 +7,13 @@ import AppLogo from './AppLogo.vue'
 import ThemeToggle from './ThemeToggle.vue'
 import { useAuthStore } from '@/stores/auth'
 import { ROUTES, NAV_ITEMS } from '@/constants'
+import { ACTIVE_TAB_BG_COLOR } from '@/constants/theme'
 
 const auth = useAuthStore()
 const router = useRouter()
 const mobileMenuOpen = ref(false)
 const toggleMenu = () => { mobileMenuOpen.value = !mobileMenuOpen.value }
+const route = router.currentRoute
 
 function handleLogout() {
   auth.logout()
@@ -28,7 +30,17 @@ function handleLogout() {
         </RouterLink>
         <div class="hidden items-center gap-1 md:flex">
           <template v-if="auth.isAuthenticated">
-            <RouterLink v-for="item in NAV_ITEMS" :key="item.to" :to="item.to" class="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+            <RouterLink
+              v-for="item in NAV_ITEMS"
+              :key="item.to"
+              :to="item.to"
+              :class="[
+                'rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                route.path === item.to
+                  ? `${ACTIVE_TAB_BG_COLOR} text-foreground font-semibold shadow`
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              ]"
+            >
               {{ item.label }}
             </RouterLink>
           </template>
@@ -59,7 +71,18 @@ function handleLogout() {
     <div v-if="mobileMenuOpen" class="border-t border-border bg-background md:hidden">
       <div class="space-y-1 px-4 py-3">
         <template v-if="auth.isAuthenticated">
-          <RouterLink v-for="item in NAV_ITEMS" :key="item.to" :to="item.to" class="block rounded-lg px-3 py-2 text-base font-medium text-foreground hover:bg-accent" @click="mobileMenuOpen = false">
+          <RouterLink
+            v-for="item in NAV_ITEMS"
+            :key="item.to"
+            :to="item.to"
+            :class="[
+              'block rounded-lg px-3 py-2 text-base font-medium',
+              route.path === item.to
+                ? `${ACTIVE_TAB_BG_COLOR} text-foreground font-semibold shadow`
+                : 'text-foreground hover:bg-accent'
+            ]"
+            @click="mobileMenuOpen = false"
+          >
             {{ item.label }}
           </RouterLink>
         </template>

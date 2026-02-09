@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppNavbar from '@/components/common/AppNavbar.vue'
 import { ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { Eye, EyeOff, UserPlus } from 'lucide-vue-next'
@@ -33,12 +34,14 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-muted p-4">
-    <div class="w-full max-w-md">
-      <div class="mb-8 flex justify-center">
-        <RouterLink :to="ROUTES.LANDING"><AppLogo size="lg" /></RouterLink>
-      </div>
-      <Card>
+  <div>
+    <AppNavbar />
+    <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-muted p-4">
+      <div class="w-full max-w-md">
+        <div class="mb-8 flex justify-center">
+          <RouterLink :to="ROUTES.LANDING"><AppLogo size="lg" /></RouterLink>
+        </div>
+        <Card>
         <CardHeader class="text-center">
           <CardTitle class="text-2xl">{{ content.title }}</CardTitle>
           <CardDescription>{{ content.subtitle }}</CardDescription>
@@ -76,7 +79,8 @@ async function handleSubmit() {
             <RouterLink :to="ROUTES.LOGIN" class="font-medium text-primary hover:underline">{{ content.signIn }}</RouterLink>
           </p>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   </div>
 </template>

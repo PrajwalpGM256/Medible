@@ -4,9 +4,14 @@ Environment-based configuration with sensible defaults
 """
 
 import os
+import secrets
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Generate a new secret on each server start (for dev)
+# This invalidates all existing tokens when server restarts
+_DEV_JWT_SECRET = secrets.token_hex(32)
 
 
 def get_database_url():
@@ -55,6 +60,10 @@ class DevelopmentConfig(Config):
     DEBUG = True
     RATELIMIT_ENABLED = False  # Disable rate limiting in dev
     CORS_ORIGINS = ['*']  # Allow all origins in dev
+    
+    # Use dynamic secret in dev - tokens invalidate on server restart
+    # This is intentional for security during development
+    SECRET_KEY = os.getenv('SECRET_KEY') or _DEV_JWT_SECRET
 
 
 class ProductionConfig(Config):

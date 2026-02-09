@@ -1,6 +1,9 @@
 import type { Severity, Theme } from '@/types'
 
-export const THEMES: Theme[] = ['light', 'dark', 'system']
+export const THEMES: Theme[] = ['light', 'dark']
+
+// Active tab background color for navbar
+export const ACTIVE_TAB_BG_COLOR = 'bg-indigo-600 dark:bg-indigo-400'
 
 export const THEME_STORAGE_KEY = 'medible-theme'
 

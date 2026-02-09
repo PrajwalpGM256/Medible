@@ -1,22 +1,16 @@
 import { ref, watch } from 'vue'
-import { usePreferredDark, useStorage } from '@vueuse/core'
+import { useStorage } from '@vueuse/core'
 import type { Theme } from '@/types'
-import { THEME_STORAGE_KEY, THEMES } from '@/constants'
+import { THEME_STORAGE_KEY } from '@/constants'
 
 export function useTheme() {
-  const prefersDark = usePreferredDark()
-  const storedTheme = useStorage<Theme>(THEME_STORAGE_KEY, 'system')
+  const storedTheme = useStorage<Theme>(THEME_STORAGE_KEY, 'light')
   const theme = ref<Theme>(storedTheme.value)
 
   const isDark = ref(false)
 
   function updateDarkMode() {
-    if (theme.value === 'system') {
-      isDark.value = prefersDark.value
-    } else {
-      isDark.value = theme.value === 'dark'
-    }
-    
+    isDark.value = theme.value === 'dark'
     document.documentElement.classList.toggle('dark', isDark.value)
   }
 
@@ -27,13 +21,8 @@ export function useTheme() {
   }
 
   function toggleTheme() {
-    const currentIndex = THEMES.indexOf(theme.value)
-    const nextIndex = (currentIndex + 1) % THEMES.length
-    setTheme(THEMES[nextIndex])
+    setTheme(theme.value === 'dark' ? 'light' : 'dark')
   }
-
-  // Watch for system preference changes
-  watch(prefersDark, updateDarkMode)
 
   // Initialize immediately (not just on mount)
   updateDarkMode()
@@ -43,6 +32,6 @@ export function useTheme() {
     isDark,
     setTheme,
     toggleTheme,
-    themes: THEMES,
+    themes: ['light', 'dark'],
   }
 }

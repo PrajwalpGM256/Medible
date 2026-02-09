@@ -72,6 +72,24 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function validateSession(): Promise<boolean> {
+    // Validates the current token with the backend
+    // Returns false if token is invalid (e.g., server restarted with new secret)
+    if (!token.value) return false
+    loading.value = true
+    try {
+      const response = await authApi.getProfile()
+      user.value = response.data.data
+      return true
+    } catch {
+      // Token is invalid - clear auth state
+      logout()
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
   function logout(): void {
     user.value = null
     token.value = null
@@ -85,6 +103,6 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     user, token, loading, error,
     isAuthenticated, userName,
-    login, register, logout, fetchProfile, clearError,
+    login, register, logout, fetchProfile, validateSession, clearError,
   }
 })

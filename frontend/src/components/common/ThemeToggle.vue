@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { Sun, Moon, Monitor } from 'lucide-vue-next'
+import { Sun, Moon } from 'lucide-vue-next'
 import { Button } from '@/components/ui/Button'
 import { useTheme } from '@/composables/useTheme'
-
 const { theme, toggleTheme } = useTheme()
-const icons = { light: Sun, dark: Moon, system: Monitor }
+const icons = { light: Sun, dark: Moon }
 </script>
 
 <template>
