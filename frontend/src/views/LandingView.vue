@@ -5,10 +5,12 @@ import HeroSection from '@/components/landing/HeroSection.vue'
 import FeaturesSection from '@/components/landing/FeaturesSection.vue'
 import StatsSection from '@/components/landing/StatsSection.vue'
 import CTASection from '@/components/landing/CTASection.vue'
+import AnimatedBackground from '@/components/animations/AnimatedBackground.vue'
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col">
+  <div class="relative flex min-h-screen flex-col">
+    <AnimatedBackground />
     <AppNavbar />
     <main class="flex-1">
       <HeroSection />
@@ -19,3 +21,4 @@ import CTASection from '@/components/landing/CTASection.vue'
     <AppFooter />
   </div>
 </template>
+
