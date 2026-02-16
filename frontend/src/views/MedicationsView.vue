@@ -16,7 +16,10 @@ const searchQuery = ref('')
 const selectedDrug = ref('')
 const dosage = ref('')
 
-onMounted(() => { meds.fetchMedications() })
+onMounted(() => { 
+  // Smart fetch - only calls API if not already loaded
+  meds.fetchMedications() 
+})
 
 const debouncedSearch = useDebouncedFn((query: string) => { meds.searchDrugs(query) }, 300)
 

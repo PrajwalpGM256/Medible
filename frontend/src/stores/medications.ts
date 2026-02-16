@@ -10,12 +10,16 @@ export const useMedicationsStore = defineStore('medications', () => {
   const loading = ref(false)
   const searchLoading = ref(false)
   const error = ref<string | null>(null)
+  const hasFetched = ref(false)
 
   const count = computed(() => medications.value.length)
   const highRiskCount = computed(() => interactions.value.filter(i => i.severity === 'high').length)
   const hasHighRisk = computed(() => highRiskCount.value > 0)
 
-  async function fetchMedications(): Promise<void> {
+  async function fetchMedications(force = false): Promise<void> {
+    // Skip if already fetched, unless forced
+    if (hasFetched.value && !force) return
+    
     loading.value = true
     error.value = null
     try {
@@ -30,6 +34,7 @@ export const useMedicationsStore = defineStore('medications', () => {
         frequency: m.frequency,
         createdAt: m.created_at || m.createdAt,
       }))
+      hasFetched.value = true
       await fetchAllInteractions()
     } catch (err: any) {
       error.value = err.response?.data?.error?.message || 'Failed to fetch medications'
@@ -128,11 +133,18 @@ export const useMedicationsStore = defineStore('medications', () => {
     searchResults.value = []
   }
 
+  function reset(): void {
+    medications.value = []
+    interactions.value = []
+    hasFetched.value = false
+    error.value = null
+  }
+
   return {
     medications, searchResults, interactions,
-    loading, searchLoading, error,
+    loading, searchLoading, error, hasFetched,
     count, highRiskCount, hasHighRisk,
     fetchMedications, searchDrugs, addMedication,
-    removeMedication, clearSearch,
+    removeMedication, clearSearch, reset,
   }
 })

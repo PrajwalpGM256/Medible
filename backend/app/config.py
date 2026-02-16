@@ -12,6 +12,7 @@ load_dotenv()
 # Generate a new secret on each server start (for dev)
 # This invalidates all existing tokens when server restarts
 _DEV_JWT_SECRET = secrets.token_hex(32)
+print(f"🔐 Generated new JWT secret (first 8 chars): {_DEV_JWT_SECRET[:8]}...")
 
 
 def get_database_url():
@@ -61,9 +62,9 @@ class DevelopmentConfig(Config):
     RATELIMIT_ENABLED = False  # Disable rate limiting in dev
     CORS_ORIGINS = ['*']  # Allow all origins in dev
     
-    # Use dynamic secret in dev - tokens invalidate on server restart
-    # This is intentional for security during development
-    SECRET_KEY = os.getenv('SECRET_KEY') or _DEV_JWT_SECRET
+    # ALWAYS use dynamic secret in dev - tokens invalidate on server restart
+    # This ensures users are logged out when server restarts (security feature)
+    SECRET_KEY = _DEV_JWT_SECRET
 
 
 class ProductionConfig(Config):

@@ -10,13 +10,7 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 
-// Initialize auth state before mounting
-import { useAuthStore } from '@/stores/auth'
-const authStore = useAuthStore()
-
-// If token exists, fetch user profile on app load
-if (authStore.token) {
-  authStore.fetchProfile()
-}
+// Token validation happens in App.vue onMounted
+// This ensures proper async handling and redirect on invalid token
 
 app.mount('#app')

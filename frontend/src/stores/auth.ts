@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authApi } from '@/services/api'
 import type { User } from '@/types'
+import { useMedicationsStore } from './medications'
+import { useInteractionHistoryStore } from './interactionHistory'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
@@ -75,14 +77,20 @@ export const useAuthStore = defineStore('auth', () => {
   async function validateSession(): Promise<boolean> {
     // Validates the current token with the backend
     // Returns false if token is invalid (e.g., server restarted with new secret)
-    if (!token.value) return false
+    if (!token.value) {
+      console.log('🔐 No token found, session invalid')
+      return false
+    }
     loading.value = true
+    console.log('🔐 Validating session with backend...')
     try {
       const response = await authApi.getProfile()
       user.value = response.data.data
+      console.log('✅ Session valid, user:', user.value?.email)
       return true
-    } catch {
+    } catch (err) {
       // Token is invalid - clear auth state
+      console.log('❌ Session invalid, logging out. Error:', err)
       logout()
       return false
     } finally {
@@ -94,6 +102,12 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     token.value = null
     localStorage.removeItem('token')
+    
+    // Reset other stores to clear cached data
+    const medsStore = useMedicationsStore()
+    const historyStore = useInteractionHistoryStore()
+    medsStore.reset()
+    historyStore.reset()
   }
 
   function clearError(): void {

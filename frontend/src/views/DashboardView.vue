@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { Pill, AlertTriangle, Search, Plus } from 'lucide-vue-next'
 import { Button } from '@/components/ui/Button'
@@ -8,36 +8,17 @@ import AppNavbar from '@/components/common/AppNavbar.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useMedicationsStore } from '@/stores/medications'
-import { ROUTES, DASHBOARD_CONTENT, SEVERITY_CONFIG } from '@/constants'
-import { interactionHistoryApi } from '@/services/api'
+import { useInteractionHistoryStore } from '@/stores/interactionHistory'
+import { ROUTES, DASHBOARD_CONTENT } from '@/constants'
 
 const auth = useAuthStore()
 const meds = useMedicationsStore()
-
-// Interaction history stats
-const interactionHistory = ref<any[]>([])
-const historyLoading = ref(false)
-
-const historyHighRiskCount = computed(() => 
-  interactionHistory.value.filter(h => h.max_severity === 'high').length
-)
-const historyTotalChecks = computed(() => interactionHistory.value.length)
-
-async function fetchInteractionHistory() {
-  historyLoading.value = true
-  try {
-    const { data } = await interactionHistoryApi.getAll(50)
-    interactionHistory.value = data?.data?.history || []
-  } catch (err) {
-    console.error('Failed to fetch interaction history:', err)
-  } finally {
-    historyLoading.value = false
-  }
-}
+const historyStore = useInteractionHistoryStore()
 
 onMounted(() => { 
+  // Smart fetch - only calls API if not already loaded
   meds.fetchMedications()
-  fetchInteractionHistory()
+  historyStore.fetchHistory()
 })
 
 const userFirstName = computed(() => {
@@ -65,16 +46,16 @@ const userFirstName = computed(() => {
             <div><p class="text-xl font-bold text-foreground">{{ meds.count }}</p><p class="text-xs text-muted-foreground">Medications</p></div>
           </CardContent>
         </Card>
-        <Card :class="{ 'border-amber-500/50': historyHighRiskCount > 0 }">
+        <Card :class="{ 'border-amber-500/50': historyStore.highRiskCount > 0 }">
           <CardContent class="flex items-center gap-3 p-4">
             <div class="rounded-lg bg-amber-500/10 p-2"><AlertTriangle class="h-5 w-5 text-amber-600 dark:text-amber-400" /></div>
-            <div><p class="text-xl font-bold text-foreground">{{ historyHighRiskCount }}</p><p class="text-xs text-muted-foreground">High Risk Alerts</p></div>
+            <div><p class="text-xl font-bold text-foreground">{{ historyStore.highRiskCount }}</p><p class="text-xs text-muted-foreground">High Risk Alerts</p></div>
           </CardContent>
         </Card>
         <Card>
           <CardContent class="flex items-center gap-3 p-4">
             <div class="rounded-lg bg-emerald-500/10 p-2"><Search class="h-5 w-5 text-emerald-600 dark:text-emerald-400" /></div>
-            <div><p class="text-xl font-bold text-foreground">{{ historyTotalChecks }}</p><p class="text-xs text-muted-foreground">Interaction Checks</p></div>
+            <div><p class="text-xl font-bold text-foreground">{{ historyStore.totalChecks }}</p><p class="text-xs text-muted-foreground">Interaction Checks</p></div>
           </CardContent>
         </Card>
       </div>
@@ -107,14 +88,14 @@ const userFirstName = computed(() => {
             <RouterLink :to="ROUTES.INTERACTIONS"><Button variant="ghost" size="sm" class="h-7 text-xs">View All</Button></RouterLink>
           </CardHeader>
           <CardContent class="px-4 pb-4 pt-0">
-            <LoadingSpinner v-if="historyLoading" />
-            <div v-else-if="interactionHistory.length === 0" class="py-6 text-center">
+            <LoadingSpinner v-if="historyStore.loading" />
+            <div v-else-if="historyStore.history.length === 0" class="py-6 text-center">
               <AlertTriangle class="mx-auto h-10 w-10 text-muted-foreground/50" />
               <p class="mt-2 text-sm text-muted-foreground">No interaction checks yet</p>
             </div>
             <div v-else class="space-y-2">
               <div 
-                v-for="check in interactionHistory.filter(h => h.had_interaction).slice(0, 4)" 
+                v-for="check in historyStore.recentAlerts" 
                 :key="check.id" 
                 :class="['rounded-md border p-2', 
                   check.max_severity === 'high' ? 'bg-red-500/5 border-red-500/30' : 
@@ -141,7 +122,7 @@ const userFirstName = computed(() => {
                   </span>
                 </div>
               </div>
-              <div v-if="interactionHistory.filter(h => h.had_interaction).length === 0" class="py-3 text-center text-sm text-muted-foreground">
+              <div v-if="historyStore.recentAlerts.length === 0" class="py-3 text-center text-sm text-muted-foreground">
                 No alerts - all checks are safe!
               </div>
             </div>

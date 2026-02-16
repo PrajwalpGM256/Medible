@@ -9,5 +9,12 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server: {
+    watch: {
+      usePolling: true,  // Fix for WSL/Docker file watching
+      interval: 1000
+    },
+    hmr: true
   }
 })

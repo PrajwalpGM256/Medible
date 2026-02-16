@@ -19,12 +19,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // Clear token from localStorage
+      // The auth store will handle logout and redirect
       localStorage.removeItem('token')
-      // Use Vue Router instead of hard redirect to preserve app state
-      const currentPath = window.location.pathname
-      if (currentPath !== ROUTES.LOGIN && currentPath !== ROUTES.REGISTER) {
-        window.location.href = `${ROUTES.LOGIN}?redirect=${encodeURIComponent(currentPath)}`
-      }
     }
     return Promise.reject(error)
   }

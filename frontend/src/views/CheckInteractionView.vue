@@ -7,12 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppNavbar from '@/components/common/AppNavbar.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import { interactionApi, foodApi, interactionHistoryApi } from '@/services/api'
+import { interactionApi, foodApi } from '@/services/api'
 import { useMedicationsStore } from '@/stores/medications'
+import { useInteractionHistoryStore } from '@/stores/interactionHistory'
 import { useDebouncedFn } from '@/composables/useDebounce'
 import { SEVERITY_CONFIG } from '@/constants'
 
 const meds = useMedicationsStore()
+const historyStore = useInteractionHistoryStore()
 
 const foodQuery = ref('')
 const foodResults = ref<any[]>([])
@@ -22,41 +24,11 @@ const checking = ref(false)
 const results = ref<any[]>([])
 const hasChecked = ref(false)
 
-// Check history from database
-const checkHistory = ref<any[]>([])
-const loadingHistory = ref(false)
-
 onMounted(() => { 
-  if (!meds.medications.length) meds.fetchMedications()
-  loadHistory()
+  // Smart fetch - only calls API if not already loaded
+  meds.fetchMedications()
+  historyStore.fetchHistory()
 })
-
-async function loadHistory() {
-  loadingHistory.value = true
-  try {
-    const { data } = await interactionHistoryApi.getAll(50)
-    checkHistory.value = data.data?.history || []
-  } catch (err) {
-    console.error('Failed to load history:', err)
-    checkHistory.value = []
-  } finally {
-    loadingHistory.value = false
-  }
-}
-
-async function saveToHistory(food: string, interactions: any[]) {
-  try {
-    await interactionHistoryApi.save({
-      food_name: food,
-      medications: meds.medications.map(m => m.drugName),
-      interactions: interactions,
-    })
-    // Reload history to get the new entry
-    await loadHistory()
-  } catch (err) {
-    console.error('Failed to save to history:', err)
-  }
-}
 
 const debouncedFoodSearch = useDebouncedFn(async (query: string) => {
   if (query.length < 2) { foodResults.value = []; return }
@@ -91,7 +63,12 @@ async function checkInteractions() {
       const { data } = await interactionApi.check(med.drugName, selectedFood.value)
       if (data.interaction) results.value.push(data.interaction)
     }
-    saveToHistory(selectedFood.value, results.value)
+    // Save to centralized store
+    await historyStore.saveCheck(
+      selectedFood.value, 
+      meds.medications.map(m => m.drugName), 
+      results.value
+    )
   } catch (err) { console.error(err) }
   finally { checking.value = false }
 }
@@ -112,24 +89,6 @@ function formatDate(dateStr: string): string {
   if (diffDays < 7) return `${diffDays}d ago`
   return date.toLocaleDateString()
 }
-
-async function clearHistory() {
-  try {
-    await interactionHistoryApi.clear()
-    checkHistory.value = []
-  } catch (err) {
-    console.error('Failed to clear history:', err)
-  }
-}
-
-async function deleteHistoryItem(id: number) {
-  try {
-    await interactionHistoryApi.delete(id)
-    checkHistory.value = checkHistory.value.filter(h => h.id !== id)
-  } catch (err) {
-    console.error('Failed to delete history item:', err)
-  }
-}
 </script>
 
 <template>
@@ -147,7 +106,7 @@ async function deleteHistoryItem(id: number) {
             <Search class="h-4 w-4" /> Check Food
           </TabsTrigger>
           <TabsTrigger value="history" class="flex-1 gap-2">
-            <History class="h-4 w-4" /> History ({{ checkHistory.length }})
+            <History class="h-4 w-4" /> History ({{ historyStore.history.length }})
           </TabsTrigger>
         </TabsList>
 
@@ -227,18 +186,18 @@ async function deleteHistoryItem(id: number) {
         </TabsContent>
 
         <TabsContent value="history">
-          <LoadingSpinner v-if="loadingHistory" text="Loading history..." />
-          <div v-else-if="!checkHistory.length" class="py-12 text-center">
+          <LoadingSpinner v-if="historyStore.loading" text="Loading history..." />
+          <div v-else-if="!historyStore.history.length" class="py-12 text-center">
             <History class="mx-auto h-12 w-12 text-muted-foreground/50" />
             <p class="mt-4 text-lg font-medium text-foreground">No check history</p>
             <p class="mt-1 text-muted-foreground">Your food interaction checks will appear here</p>
           </div>
           <div v-else class="space-y-3">
             <div class="flex items-center justify-between mb-4">
-              <p class="text-sm text-muted-foreground">Recent checks ({{ checkHistory.length }})</p>
-              <Button variant="ghost" size="sm" @click="clearHistory">Clear All</Button>
+              <p class="text-sm text-muted-foreground">Recent checks ({{ historyStore.history.length }})</p>
+              <Button variant="ghost" size="sm" @click="historyStore.clearHistory()">Clear All</Button>
             </div>
-            <Card v-for="entry in checkHistory" :key="entry.id" :class="entry.had_interaction ? 'border-amber-200 dark:border-amber-800' : 'border-emerald-200 dark:border-emerald-800'">
+            <Card v-for="entry in historyStore.history" :key="entry.id" :class="entry.had_interaction ? 'border-amber-200 dark:border-amber-800' : 'border-emerald-200 dark:border-emerald-800'">
               <CardContent class="flex items-center gap-4 p-4">
                 <div :class="['rounded-full p-2', entry.had_interaction ? 'bg-amber-500/10' : 'bg-emerald-500/10']">
                   <AlertTriangle v-if="entry.had_interaction" class="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -259,9 +218,9 @@ async function deleteHistoryItem(id: number) {
                 <div class="flex items-center gap-2">
                   <div class="flex items-center gap-1 text-xs text-muted-foreground">
                     <Clock class="h-3 w-3" />
-                    {{ formatDate(entry.checked_at) }}
+                    {{ formatDate(entry.created_at) }}
                   </div>
-                  <Button variant="ghost" size="icon" class="h-8 w-8 text-muted-foreground hover:text-destructive" @click="deleteHistoryItem(entry.id)">
+                  <Button variant="ghost" size="icon" class="h-8 w-8 text-muted-foreground hover:text-destructive" @click="historyStore.deleteEntry(entry.id)">
                     <Trash2 class="h-4 w-4" />
                   </Button>
                 </div>
