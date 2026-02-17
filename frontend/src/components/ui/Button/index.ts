@@ -9,15 +9,15 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground hover:bg-teal-400 dark:hover:bg-teal-700 border-2 border-primary/20 dark:border-none hover:-translate-y-0.5 transition-all duration-300",
+          "bg-primary text-primary-foreground border-2 border-primary/20 dark:border-none",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "bg-destructive text-white hover:bg-destructive/90",
         outline:
-          "border-2 bg-background shadow-xs hover:bg-teal-50 dark:hover:bg-slate-800 hover:text-teal-700 dark:hover:text-teal-400 border-foreground/20 dark:border-border hover:border-teal-600 dark:hover:border-teal-400 hover:-translate-y-0.5 transition-all duration-300",
+          "border-2 bg-background border-foreground/20 dark:border-border",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+          "bg-transparent text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
@@ -28,10 +28,37 @@ export const buttonVariants = cva(
         "icon-sm": "size-8",
         "icon-lg": "size-10",
       },
+      hover: {
+        active: "hover:-translate-y-1 hover:shadow-lg active:scale-95 transition-all duration-300",
+        none: "",
+      },
     },
+    compoundVariants: [
+      {
+        variant: "default",
+        hover: "active",
+        class: "hover:bg-teal-400 dark:hover:bg-teal-700",
+      },
+      {
+        variant: "outline",
+        hover: "active",
+        class: "hover:bg-teal-50 dark:hover:bg-slate-800 hover:text-teal-700 dark:hover:text-teal-400 hover:border-teal-600 dark:hover:border-teal-400",
+      },
+      {
+        variant: "secondary",
+        hover: "active",
+        class: "hover:bg-secondary/80",
+      },
+      {
+        variant: "ghost",
+        hover: "active",
+        class: "hover:bg-teal-200 dark:hover:bg-teal-900/40 hover:text-black dark:hover:text-teal-200 hover:border-teal-300 dark:hover:border-teal-800 border border-transparent",
+      },
+    ],
     defaultVariants: {
       variant: "default",
       size: "default",
+      hover: "none",
     },
   },
 )

@@ -13,7 +13,7 @@ const props = defineProps<{
 <template>
   <div
     data-slot="alert"
-    :class="cn(alertVariants({ variant }), props.class)"
+    :class="cn(alertVariants({ variant: props.variant }), props.class)"
     role="alert"
   >
     <slot />

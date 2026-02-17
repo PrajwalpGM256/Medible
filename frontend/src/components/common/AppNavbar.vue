@@ -49,10 +49,10 @@ function handleLogout() {
           <ThemeToggle />
           <template v-if="!auth.isAuthenticated">
             <RouterLink :to="ROUTES.LOGIN" class="hidden sm:block">
-              <Button variant="ghost">Sign In</Button>
+              <Button variant="ghost" hover>Sign In</Button>
             </RouterLink>
             <RouterLink :to="ROUTES.REGISTER">
-              <Button>Get Started</Button>
+              <Button hover>Get Started</Button>
             </RouterLink>
           </template>
           <template v-else>

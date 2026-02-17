@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue"
+import type { SkeletonVariants } from "."
 import { cn } from "@/lib/utils"
+import { skeletonVariants } from "."
 
-interface SkeletonProps {
+const props = defineProps<{
+  variant?: SkeletonVariants["variant"]
   class?: HTMLAttributes["class"]
-}
-
-const props = defineProps<SkeletonProps>()
+}>()
 </script>
 
 <template>
   <div
     data-slot="skeleton"
-    :class="cn('animate-pulse rounded-md bg-primary/10', props.class)"
+    :class="cn(skeletonVariants({ variant: props.variant }), props.class)"
   />
 </template>

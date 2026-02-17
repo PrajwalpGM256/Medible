@@ -30,7 +30,7 @@ import { ROUTES } from '@/constants'
           </p>
           <div class="mt-10">
             <RouterLink :to="ROUTES.REGISTER">
-              <Button size="lg" variant="secondary" class="h-12 px-8 text-base font-semibold shadow-lg transition-transform hover:scale-105 active:scale-95">
+              <Button size="lg" variant="secondary" hover class="h-12 px-8 text-base font-semibold shadow-lg">
                 Get Started Now
                 <ArrowRight class="ml-2 h-5 w-5" />
               </Button>
