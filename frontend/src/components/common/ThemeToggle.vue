@@ -7,7 +7,10 @@ const icons = { light: Sun, dark: Moon }
 </script>
 
 <template>
-  <Button variant="ghost" size="icon" class="h-10 w-10" @click="toggleTheme">
-    <component :is="icons[theme]" class="h-5 w-5" />
+  <Button variant="ghost" size="icon" class="h-10 w-10 group" @click="toggleTheme">
+    <component 
+      :is="icons[theme]" 
+      class="h-5 w-5 transition-all duration-700 ease-in-out group-hover:rotate-[720deg] group-hover:scale-200" 
+    />
   </Button>
 </template>

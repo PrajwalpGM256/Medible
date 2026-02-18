@@ -41,7 +41,7 @@ async function handleSubmit() {
     <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-muted p-4">
       <div class="w-full max-w-md">
         <div class="mb-8 flex justify-center">
-          <RouterLink :to="ROUTES.LANDING"><AppLogo size="lg" /></RouterLink>
+          <RouterLink :to="ROUTES.LANDING" class="hover:bg-transparent transition-none"><AppLogo size="lg" /></RouterLink>
         </div>
         <Card>
         <CardHeader class="text-center">
@@ -52,12 +52,12 @@ async function handleSubmit() {
           <form @submit.prevent="handleSubmit" class="space-y-4">
             <div class="space-y-2">
               <Label for="email">{{ content.emailLabel }}</Label>
-              <Input id="email" v-model="email" type="email" placeholder="you@example.com" required />
+              <Input id="email" v-model="email" type="email" variant="outline" placeholder="you@example.com" required class="autofill:bg-transparent autofill:text-inherit" />
             </div>
             <div class="space-y-2">
               <Label for="password">{{ content.passwordLabel }}</Label>
               <div class="relative">
-                <Input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" placeholder="••••••••" required />
+                <Input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" variant="outline" placeholder="••••••••" required class="autofill:bg-transparent autofill:text-inherit" />
                 <Button type="button" variant="ghost" size="icon" class="absolute right-0 top-0 h-full px-3" @click="showPassword = !showPassword">
                   <EyeOff v-if="showPassword" class="h-4 w-4" /><Eye v-else class="h-4 w-4" />
                 </Button>

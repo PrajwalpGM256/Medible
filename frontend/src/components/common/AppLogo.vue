@@ -19,11 +19,11 @@ const sizeMap = {
 
 const currentSize = computed(() => sizeMap[props.size || 'md'])
 
-const animateLogo = (isHover = false) => {
+const animateLogo = () => {
   if (!textRef.value || !dotRef.value) return
 
   const tl = gsap.timeline({ defaults: { ease: "none" } })
-  const duration = isHover ? 2.2 : 3.5
+  const duration = 3.5
 
   gsap.set(textRef.value, { 
     clipPath: 'inset(0 100% 0 0)'
@@ -70,9 +70,8 @@ onMounted(() => {
 <template>
   <div 
     ref="containerRef"
-    class="relative flex items-center group cursor-pointer" 
+    class="relative flex items-center select-none" 
     :class="currentSize.height"
-    @mouseenter="animateLogo(true)"
   >
     <div class="relative flex items-center">
       <span 

@@ -25,7 +25,7 @@ function handleLogout() {
   <nav class="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="flex h-16 items-center justify-between">
-        <RouterLink :to="auth.isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LANDING" class="flex-shrink-0">
+        <RouterLink :to="auth.isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LANDING" class="flex-shrink-0 hover:bg-transparent transition-none">
           <AppLogo size="md" />
         </RouterLink>
         <div class="hidden items-center gap-1 md:flex">
@@ -49,15 +49,15 @@ function handleLogout() {
           <ThemeToggle />
           <template v-if="!auth.isAuthenticated">
             <RouterLink :to="ROUTES.LOGIN" class="hidden sm:block">
-              <Button variant="ghost" hover>Sign In</Button>
+              <Button hover="active">Sign In</Button>
             </RouterLink>
             <RouterLink :to="ROUTES.REGISTER">
-              <Button hover>Get Started</Button>
+              <Button hover="active">Get Started</Button>
             </RouterLink>
           </template>
           <template v-else>
             <RouterLink :to="ROUTES.PROFILE" class="hidden sm:block">
-              <Button variant="ghost">Profile</Button>
+              <Button variant="active">Profile</Button>
             </RouterLink>
             <Button variant="outline" @click="handleLogout">Logout</Button>
           </template>
