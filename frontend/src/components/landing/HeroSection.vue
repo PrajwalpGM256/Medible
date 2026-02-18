@@ -30,15 +30,15 @@ const { hero } = LANDING_CONTENT
         </a>
       </div>
       <div class="relative mx-auto mt-16 max-w-3xl">
-        <Card class="overflow-hidden rounded-2xl bg-gradient-to-b from-background to-muted/50 shadow-2xl">
-          <div class="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-3">
+        <Card class="overflow-hidden rounded-2xl bg-background/90 backdrop-blur-xl shadow-2xl border-border/50">
+          <div class="flex items-center gap-2 border-b border-border bg-muted/30 px-4 py-3">
             <div class="h-3 w-3 rounded-full bg-red-400" />
             <div class="h-3 w-3 rounded-full bg-yellow-400" />
             <div class="h-3 w-3 rounded-full bg-green-400" />
           </div>
           <CardContent class="p-6 sm:p-8">
             <div class="space-y-4">
-              <div class="flex items-center gap-3 rounded-xl bg-background p-4 shadow-sm">
+              <div class="flex items-center gap-3 rounded-xl bg-background/80 p-4 shadow-sm border border-border/50 backdrop-blur-sm">
                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-500/10">
                   <Pill class="h-5 w-5 text-teal-600" />
                 </div>

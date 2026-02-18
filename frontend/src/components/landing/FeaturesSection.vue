@@ -41,7 +41,7 @@ const steps = [
         <Card 
           v-for="feature in features" 
           :key="feature.title" 
-          class="group relative overflow-hidden transition-all hover:border-primary/50 hover:shadow-lg"
+          class="group relative overflow-hidden transition-all hover:border-primary/50 hover:shadow-lg bg-background/90 backdrop-blur-xl border-border/50"
         >
           <CardHeader class="pb-2">
             <div class="mb-2 inline-flex w-fit rounded-xl bg-gradient-to-br from-teal-500/10 to-cyan-500/10 p-3">
@@ -73,7 +73,7 @@ const steps = [
                 <component :is="step.icon" class="h-8 w-8 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform" />
               </div>
               <h3 class="mb-3 text-xl font-bold text-foreground">{{ step.title }}</h3>
-              <p class="text-muted-foreground leading-relaxed bg-background/50 rounded-lg p-2 backdrop-blur-[2px]">{{ step.description }}</p>
+              <p class="text-muted-foreground leading-relaxed bg-background/80 rounded-xl p-3 backdrop-blur-md border border-border/50 shadow-sm">{{ step.description }}</p>
             </div>
             
             <!-- Arrow -->
