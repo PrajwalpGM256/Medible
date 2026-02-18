@@ -25,11 +25,11 @@ function handleLogout() {
   <nav class="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="flex h-16 items-center justify-between">
-        <RouterLink :to="auth.isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LANDING" class="flex-shrink-0">
+        <RouterLink :to="auth.isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LANDING" class="flex-shrink-0 hover:bg-transparent transition-none">
           <AppLogo size="md" />
         </RouterLink>
         <div class="hidden items-center gap-1 md:flex">
-          <template v-if="auth.isAuthenticated">
+          <template v-if="auth.isAuthenticated && route.path !== ROUTES.LOGIN && route.path !== ROUTES.REGISTER">
             <RouterLink
               v-for="item in NAV_ITEMS"
               :key="item.to"
@@ -48,14 +48,14 @@ function handleLogout() {
         <div class="flex items-center gap-2">
           <ThemeToggle />
           <template v-if="!auth.isAuthenticated">
-            <RouterLink :to="ROUTES.LOGIN" class="hidden sm:block">
-              <Button variant="ghost" hover>Sign In</Button>
+            <RouterLink :to="ROUTES.LOGIN" v-if="route.path !== ROUTES.LOGIN" class="hidden sm:block">
+              <Button hover="active">Sign In</Button>
             </RouterLink>
-            <RouterLink :to="ROUTES.REGISTER">
-              <Button hover>Get Started</Button>
+            <RouterLink :to="ROUTES.REGISTER" v-if="route.path !== ROUTES.REGISTER">
+              <Button hover="active">Get Started</Button>
             </RouterLink>
           </template>
-          <template v-else>
+          <template v-else-if="route.path !== ROUTES.LOGIN && route.path !== ROUTES.REGISTER">
             <RouterLink :to="ROUTES.PROFILE" class="hidden sm:block">
               <Button variant="ghost">Profile</Button>
             </RouterLink>
@@ -70,7 +70,7 @@ function handleLogout() {
     </div>
     <div v-if="mobileMenuOpen" class="border-t border-border bg-background md:hidden">
       <div class="space-y-1 px-4 py-3">
-        <template v-if="auth.isAuthenticated">
+        <template v-if="auth.isAuthenticated && route.path !== ROUTES.LOGIN && route.path !== ROUTES.REGISTER">
           <RouterLink
             v-for="item in NAV_ITEMS"
             :key="item.to"

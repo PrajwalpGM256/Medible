@@ -18,19 +18,9 @@ onMounted(() => {
 
 <template>
   <Button variant="ghost" size="icon" class="h-10 w-10 group" @click="toggleTheme">
-    <div
-      class="flex items-center justify-center"
-      :class="[
-        isMounted
-          ? 'scale-100 rotate-0 opacity-100 transition-all duration-1000 ease-out'
-          : 'scale-0 rotate-180 opacity-0'
-      ]"
-      style="transition-property: transform, opacity, rotate;"
-    >
-      <component
-        :is="icons[theme]"
-        class="h-5 w-5 transition-transform duration-500 group-hover:scale-120 group-hover:rotate-180"
-      />
-    </div>
+    <component 
+      :is="icons[theme]" 
+      class="h-5 w-5 transition-all duration-700 ease-in-out group-hover:rotate-[720deg] group-hover:scale-200" 
+    />
   </Button>
 </template>
