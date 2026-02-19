@@ -51,12 +51,12 @@ async function handleSubmit() {
           <form @submit.prevent="handleSubmit" class="space-y-4">
             <div class="space-y-2">
               <Label for="email">{{ content.emailLabel }}</Label>
-              <Input id="email" v-model="email" type="email" variant="outline" placeholder="you@example.com" required class="autofill:bg-transparent autofill:text-inherit border-2! border-zinc-900! dark:border-border! focus-visible:ring-0! focus-visible:border-b-4! transition-all" />
+              <Input id="email" v-model="email" type="email" variant="outline" placeholder="you@example.com" required class="autofill:bg-transparent autofill:text-inherit border-2 border-black dark:border-white focus-visible:ring-0 focus-visible:border-b-4 transition-all" />
             </div>
             <div class="space-y-2">
               <Label for="password">{{ content.passwordLabel }}</Label>
               <div class="relative">
-                <Input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" variant="outline" placeholder="••••••••" required class="autofill:bg-transparent autofill:text-inherit border-2! border-zinc-900! dark:border-border! focus-visible:ring-0! focus-visible:border-b-4! transition-all" />
+                <Input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" variant="outline" placeholder="••••••••" required class="autofill:bg-transparent autofill:text-inherit border-2 border-black dark:border-white focus-visible:ring-0 focus-visible:border-b-4 transition-all" />
                 <Button type="button" variant="ghost" size="icon" class="absolute right-0 top-0 h-full px-3" @click="showPassword = !showPassword">
                   <EyeOff v-if="showPassword" class="h-4 w-4" /><Eye v-else class="h-4 w-4" />
                 </Button>
@@ -77,7 +77,7 @@ async function handleSubmit() {
                 variant="outline" 
                 size="sm"
                 hover="glow"
-                class="h-auto border-2! border-zinc-900! dark:border-border! text-m font-medium pb-1 pt-1" 
+                class="h-auto border-2 border-black dark:border-white text-m font-medium pb-1 pt-1" 
                 @click="fillDemoCredentials"
               >
                 Use Demo Account

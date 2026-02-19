@@ -49,16 +49,16 @@ async function handleSubmit() {
           <form @submit.prevent="handleSubmit" class="space-y-4">
             <div class="space-y-2">
               <Label for="name">{{ content.nameLabel }}</Label>
-              <Input id="name" v-model="name" type="text" variant="outline" placeholder="Prajwal Melinamane" required class="autofill:bg-transparent autofill:text-inherit border-2! border-zinc-900! dark:border-border! focus-visible:ring-0! focus-visible:border-b-4! transition-all" />
+              <Input id="name" v-model="name" type="text" variant="outline" placeholder="Prajwal Melinamane" required class="autofill:bg-transparent autofill:text-inherit border-2 border-black dark:border-white focus-visible:ring-0 focus-visible:border-b-4 transition-all" />
             </div>
             <div class="space-y-2">
               <Label for="email">{{ content.emailLabel }}</Label>
-              <Input id="email" v-model="email" type="email" variant="outline" placeholder="Prajwal@example.com" required class="autofill:bg-transparent autofill:text-inherit border-2! border-zinc-900! dark:border-border! focus-visible:ring-0! focus-visible:border-b-4! transition-all" />
+              <Input id="email" v-model="email" type="email" variant="outline" placeholder="Prajwal@example.com" required class="autofill:bg-transparent autofill:text-inherit border-2 border-black dark:border-white focus-visible:ring-0 focus-visible:border-b-4 transition-all" />
             </div>
             <div class="space-y-2">
               <Label for="password">{{ content.passwordLabel }}</Label>
               <div class="relative">
-                <Input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" variant="outline" placeholder="••••••••" required minlength="8" class="autofill:bg-transparent autofill:text-inherit border-2! border-zinc-900! dark:border-border! focus-visible:ring-0! focus-visible:border-b-4! transition-all" />
+                <Input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" variant="outline" placeholder="••••••••" required minlength="8" class="autofill:bg-transparent autofill:text-inherit border-2 border-black dark:border-white focus-visible:ring-0 focus-visible:border-b-4 transition-all" />
                 <Button type="button" variant="ghost" size="icon" class="absolute right-0 top-0 h-full px-3" @click="showPassword = !showPassword">
                   <EyeOff v-if="showPassword" class="h-4 w-4" /><Eye v-else class="h-4 w-4" />
                 </Button>
@@ -66,7 +66,7 @@ async function handleSubmit() {
             </div>
             <div class="space-y-2">
               <Label for="confirmPassword">{{ content.confirmPasswordLabel }}</Label>
-              <Input id="confirmPassword" v-model="confirmPassword" type="password" variant="outline" placeholder="••••••••" required class="autofill:bg-transparent autofill:text-inherit border-2! border-zinc-900! dark:border-border! focus-visible:ring-0! focus-visible:border-b-4! transition-all" />
+              <Input id="confirmPassword" v-model="confirmPassword" type="password" variant="outline" placeholder="••••••••" required class="autofill:bg-transparent autofill:text-inherit border-2 border-black dark:border-white focus-visible:ring-0 focus-visible:border-b-4 transition-all" />
             </div>
             <div v-if="localError || auth.error" class="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{{ localError || auth.error }}</div>
             <div class="flex justify-center">
