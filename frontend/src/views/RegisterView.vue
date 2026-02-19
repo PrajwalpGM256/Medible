@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import AppLogo from '@/components/common/AppLogo.vue'
 import { useAuthStore } from '@/stores/auth'
 import { ROUTES, FORM_CONTENT } from '@/constants'
+import AnimatedBackground from '@/components/animations/AnimatedBackground.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -34,11 +35,12 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="flex h-screen flex-col overflow-hidden bg-gradient-to-br from-background to-muted">
+  <div class="relative flex h-screen flex-col overflow-hidden">
+    <AnimatedBackground />
     <AppNavbar />
     <div class="flex flex-1 items-center justify-center p-4">
       <div class="w-full max-w-md">
-        <Card class="border-2 border-teal-500/50 shadow-[0_0_20px_rgba(20,184,166,0.3)] dark:shadow-[0_0_30px_rgba(20,184,166,0.2)]">
+        <Card class="border-2 border-teal-500/50 bg-background/80 backdrop-blur-md shadow-[0_0_20px_rgba(20,184,166,0.3)] dark:shadow-[0_0_30px_rgba(20,184,166,0.2)]">
         <CardHeader class="p-6 text-center">
           <CardTitle class="text-2xl">{{ content.title }}</CardTitle>
           <CardDescription>{{ content.subtitle }}</CardDescription>
