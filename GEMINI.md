@@ -116,3 +116,51 @@ npm run dev
     -   `npm run format`: Format the code using Prettier.
 -   **Code Style:** Enforced by ESLint and Prettier. It's recommended to run `npm run lint` and `npm run format` before committing changes.
 -   **Type Checking:** The project uses TypeScript. Use `npm run type-check` to run `vue-tsc`.
+
+## Coding Preferences
+
+## Frontend Rules
+
+1. No Inline Styles
+Never use style attributes or style bindings. Always use Tailwind CSS utility classes. For dynamic styles, use conditional classes with the cn utility function.
+
+2. Prioritize UX and Accessibility
+Design mobile-first starting with small screens then scaling up. Use semantic HTML elements like button, nav, main, and article. Add ARIA labels for interactive elements. Support keyboard navigation with proper focus states. Always include loading states, error states, and empty states for async operations.
+
+3. Modular Component Structure
+One component per file. Keep components under 200 lines and extract sub-components if larger. Keep functions under 50 lines. Organize components by feature not by type.
+
+4. Type Safety and Constants
+Use TypeScript everywhere with no any types. Define props and emits with TypeScript generics. Never hardcode strings or magic numbers. Extract all values to named constants.
+
+5. State and Data Flow
+Use Pinia stores for global state like auth and user data. Use composables for reusable logic. Follow props down and emits up pattern. Avoid prop drilling beyond 2 levels. Keep components stateless when possible.
+
+6. Theme Aware Design
+Support all 6 themes which are Light, Dark. Use CSS variables for theme colors. Test components in both light and dark modes. Use shadcn-vue components as the base since they are already theme-aware.
+
+7. Performance Best Practices
+Lazy load routes and heavy components. Use v-once for static content. Debounce search inputs. Avoid v-if and v-for on the same element. Always use key attribute in v-for loops.
+
+8. Testing and Reliability
+Write unit tests for components and composables. Test user interactions and edge cases. Mock API calls in tests. Test accessibility with screen reader compatibility. Ensure all forms have proper validation feedback.
+
+## Backend Rules
+
+1. Structured API Responses
+Always return JSON with consistent structure. Include success boolean, data object, message string, and request ID for tracing. Use proper HTTP status codes. Never expose stack traces in error responses.
+
+2. Separation of Concerns
+Routes only handle HTTP request and response. Services contain business logic. Models define data structure and database interactions. Never put business logic in routes.
+
+3. Error Handling and Logging
+Create custom exception classes for different error types. Use a global error handler. Use structured logging with request context. Log at appropriate levels including debug, info, warning, and error. Never log sensitive data like passwords or tokens.
+
+4. Security First
+Validate all inputs for type, length, and format. Sanitize data before database queries. Use parameterized queries which SQLAlchemy handles automatically. Set proper JWT token expiration. Add rate limiting on authentication endpoints.
+
+5. Database Best Practices
+Use migrations for all schema changes. Add indexes on frequently queried columns. Use soft deletes with deleted_at timestamp for user data. Add created_at and updated_at timestamps on all models.
+
+6. Testing and Reliability
+Write unit tests for services. Write integration tests for routes. Test error cases not just happy paths. Mock external APIs like OpenFDA and USDA in tests.

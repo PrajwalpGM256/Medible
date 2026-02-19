@@ -36,54 +36,56 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div>
+  <div class="flex h-screen flex-col overflow-hidden bg-gradient-to-br from-background to-muted">
     <AppNavbar />
-    <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-muted p-4">
+    <div class="flex flex-1 items-center justify-center p-4">
       <div class="w-full max-w-md">
-        <div class="mb-8 flex justify-center">
-          <RouterLink :to="ROUTES.LANDING" class="hover:bg-transparent transition-none"><AppLogo size="lg" /></RouterLink>
-        </div>
-        <Card>
-        <CardHeader class="text-center">
+        <Card class="border-2 border-teal-500/50 shadow-[0_0_20px_rgba(20,184,166,0.3)] dark:shadow-[0_0_30px_rgba(20,184,166,0.2)]">
+        <CardHeader class="p-6 text-center">
           <CardTitle class="text-2xl">{{ content.title }}</CardTitle>
           <CardDescription>{{ content.subtitle }}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent class="px-6 pb-6 pt-0">
           <form @submit.prevent="handleSubmit" class="space-y-4">
             <div class="space-y-2">
               <Label for="email">{{ content.emailLabel }}</Label>
-              <Input id="email" v-model="email" type="email" variant="outline" placeholder="you@example.com" required class="autofill:bg-transparent autofill:text-inherit" />
+              <Input id="email" v-model="email" type="email" variant="outline" placeholder="you@example.com" required class="autofill:bg-transparent autofill:text-inherit border-2! border-zinc-900! dark:border-border! focus-visible:ring-0! focus-visible:border-b-4! transition-all" />
             </div>
             <div class="space-y-2">
               <Label for="password">{{ content.passwordLabel }}</Label>
               <div class="relative">
-                <Input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" variant="outline" placeholder="••••••••" required class="autofill:bg-transparent autofill:text-inherit" />
+                <Input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" variant="outline" placeholder="••••••••" required class="autofill:bg-transparent autofill:text-inherit border-2! border-zinc-900! dark:border-border! focus-visible:ring-0! focus-visible:border-b-4! transition-all" />
                 <Button type="button" variant="ghost" size="icon" class="absolute right-0 top-0 h-full px-3" @click="showPassword = !showPassword">
                   <EyeOff v-if="showPassword" class="h-4 w-4" /><Eye v-else class="h-4 w-4" />
                 </Button>
               </div>
             </div>
             <div v-if="auth.error" class="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{{ auth.error }}</div>
-            <Button type="submit" class="w-full gap-2" :disabled="auth.loading">
-              <LogIn class="h-4 w-4" />{{ auth.loading ? 'Signing in...' : content.submitButton }}
-            </Button>
+            <div class="flex flex-col items-center gap-2">
+              <Button 
+                type="submit" 
+                hover="active"
+                class="w-fit gap-2 border-2 border-black dark:border-teal-500 font-semibold text-black transition-all duration-300 dark:text-teal-400 active:scale-[0.98]" 
+                :disabled="auth.loading"
+              >
+                <LogIn class="h-4 w-4" />{{ auth.loading ? 'Signing in...' : content.submitButton }}
+              </Button>
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm"
+                hover="glow"
+                class="h-auto border-2! border-zinc-900! dark:border-border! text-m font-medium pb-1 pt-1" 
+                @click="fillDemoCredentials"
+              >
+                Use Demo Account
+              </Button>
+            </div>
           </form>
           <p class="mt-6 text-center text-sm text-muted-foreground">
             {{ content.noAccount }}
             <RouterLink :to="ROUTES.REGISTER" class="font-medium text-primary hover:underline">{{ content.signUp }}</RouterLink>
           </p>
-          
-          <!-- Demo Credentials -->
-          <div class="mt-6 rounded-lg border border-dashed border-border bg-muted/50 p-4">
-            <p class="mb-2 text-center text-xs font-medium uppercase tracking-wide text-muted-foreground">Demo Account</p>
-            <div class="space-y-1 text-center text-sm">
-              <p><span class="text-muted-foreground">Email:</span> <code class="rounded bg-background px-1.5 py-0.5 font-mono text-xs">demo@medible.com</code></p>
-              <p><span class="text-muted-foreground">Password:</span> <code class="rounded bg-background px-1.5 py-0.5 font-mono text-xs">Demo123!</code></p>
-            </div>
-            <Button variant="outline" size="sm" class="mt-3 w-full" @click="fillDemoCredentials">
-              Use Demo Account
-            </Button>
-          </div>
         </CardContent>
         </Card>
       </div>

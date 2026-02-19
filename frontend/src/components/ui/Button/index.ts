@@ -29,8 +29,13 @@ export const buttonVariants = cva(
         "icon-lg": "size-10",
       },
       hover: {
-        active: "hover:-translate-y-1 hover:shadow-lg active:scale-95 transition-all duration-300",
         none: "",
+        active: "hover:-translate-y-1 hover:shadow-lg active:scale-95 transition-all duration-300",
+        glow: "hover:shadow-[0_0_20px_rgba(20,184,166,0.4)] transition-all duration-300",
+        lift: "hover:-translate-y-1 hover:shadow-md transition-all duration-300",
+        expand: "hover:scale-105 active:scale-95 transition-all duration-300",
+        brutal: "hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:hover:shadow-[4px_4px_0px_rgba(20,184,166,1)] hover:-translate-x-1 hover:-translate-y-1 active:translate-x-0 active:translate-y-0 active:shadow-none transition-all duration-200",
+        pulse: "hover:animate-pulse transition-all duration-300",
       },
     },
     compoundVariants: [
@@ -40,9 +45,19 @@ export const buttonVariants = cva(
         class: "hover:bg-teal-400 dark:hover:bg-teal-700",
       },
       {
+        variant: "default",
+        hover: "glow",
+        class: "hover:bg-teal-500/90 hover:shadow-teal-500/50 dark:hover:bg-teal-600",
+      },
+      {
         variant: "outline",
         hover: "active",
         class: "hover:bg-teal-50 dark:hover:bg-slate-800 hover:text-teal-700 dark:hover:text-teal-400 hover:border-teal-600 dark:hover:border-teal-400",
+      },
+      {
+        variant: "outline",
+        hover: "glow",
+        class: "hover:border-teal-500 hover:shadow-teal-500/20 hover:text-teal-600",
       },
       {
         variant: "secondary",
