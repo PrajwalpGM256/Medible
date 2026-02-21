@@ -20,6 +20,7 @@ export const cardVariants = cva(
         destructive: "border-2 border-destructive/50 bg-destructive/5 py-6",
         glass: "bg-card/90 backdrop-blur-md border-2 border-foreground/10 dark:border py-6",
         ghost: "border-none bg-transparent shadow-none p-0",
+        gold: "border-[0.5px] border-gold bg-card py-6",
       },
       hover: {
         none: "",
