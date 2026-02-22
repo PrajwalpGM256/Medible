@@ -5,7 +5,8 @@
 }
 
 :root {
-  --color-border: hsl(222.2 47.4% 11.2% / 0.15); /* Darker, more defined border for light mode */
+  --color-border: hsl(222.2 47.4% 11.2% / 0.15);
+  /* Darker, more defined border for light mode */
   --color-input: hsl(214.3 31.8% 91.4%);
   --color-ring: hsl(172 66% 50%);
   --color-background: hsl(0 0% 100%);
@@ -68,4 +69,77 @@ body {
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Utility: hide scrollbar across all browsers */
+.scrollbar-hide {
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
+}
+
+/* Dialog: solid opaque background for teleported dialogs */
+.dialog-solid[data-slot="dialog-content"] {
+  background-color: var(--color-card);
+  opacity: 1;
+}
+
+/* Dialog: underline-only inputs */
+.dialog-solid [data-slot="input"] {
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.dialog-solid [data-slot="input"]:focus,
+.dialog-solid [data-slot="input"]:focus-visible {
+  border-color: var(--color-gold);
+  box-shadow: none;
+  outline: none;
+  --tw-ring-shadow: none;
+}
+
+/* Magic UI: animated gradient shimmer text */
+@keyframes gradient-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.text-gradient-animate {
+  background: linear-gradient(90deg,
+      var(--color-primary),
+      var(--color-gold),
+      var(--color-primary),
+      var(--color-gold));
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shimmer 4s ease infinite;
+}
+
+/* Delete icon: subtle hover color change */
+.btn-delete svg {
+  color: var(--color-muted-foreground);
+  transition: color 0.2s ease;
+}
+
+.btn-delete:hover svg {
+  color: var(--color-destructive);
 }
