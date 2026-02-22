@@ -41,9 +41,7 @@ const router = createRouter({
     },
     {
       path: '/nutrition',
-      name: 'nutrition',
-      component: () => import('@/views/NutritionView.vue'),
-      meta: { requiresAuth: true }
+      redirect: '/food-diary',
     },
     {
       path: '/food-diary',
@@ -63,7 +61,7 @@ const router = createRouter({
 // Navigation guards
 router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore()
-  
+
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'login', query: { redirect: to.fullPath } })
   } else if (to.meta.guest && authStore.isAuthenticated) {
