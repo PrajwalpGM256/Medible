@@ -3,7 +3,7 @@ Authentication Routes
 Handles user registration, login, logout, and profile
 """
 
-from flask import Blueprint, request, g
+from flask import Blueprint, request, g, jsonify
 from app import db
 from app.models.user import User
 from app.services.auth_service import (
@@ -13,6 +13,9 @@ from app.services.auth_service import (
     auth_required,
     validate_password,
     validate_email,
+    generate_password_reset_token,
+    verify_password_reset_token,
+    clear_password_reset_token,
     AuthenticationError
 )
 from app.errors import (
@@ -208,6 +211,16 @@ def update_profile():
     if 'last_name' in data:
         user.last_name = data['last_name'].strip() or None
     
+    if 'email' in data:
+        new_email = data['email'].strip().lower()
+        if new_email != user.email:
+            is_valid, error = validate_email(new_email)
+            if not is_valid:
+                raise ValidationError(error, {"field": "email"})
+            if User.find_by_email(new_email):
+                raise ValidationError("Email already registered", {"field": "email"})
+            user.email = new_email
+    
     db.session.commit()
     
     return api_response(
@@ -248,5 +261,171 @@ def change_password():
     
     return api_response(
         data={"message": "Password updated successfully"},
+        meta={"request_id": g.request_id}
+    )
+
+
+@auth_bp.route('/logout', methods=['POST'])
+@auth_required
+@handle_exceptions
+def logout():
+    """
+    Logout user by blacklisting the current token
+    """
+    from app.services.auth_service import get_token_from_header
+    from app.models.token_blacklist import TokenBlacklist
+    from datetime import datetime, timezone
+
+    token = get_token_from_header()
+    payload = decode_token(token)
+
+    jti = payload.get('jti', token[:32])  # Use first 32 chars as JTI if none
+    exp = payload.get('exp')
+    expires_at = datetime.fromtimestamp(exp, tz=timezone.utc) if exp else datetime.now(timezone.utc)
+
+    TokenBlacklist.blacklist_token(
+        jti=jti,
+        user_id=g.current_user.id,
+        expires_at=expires_at
+    )
+
+    return api_response(
+        data={"message": "Successfully logged out"},
+        meta={"request_id": g.request_id}
+    )
+
+
+@auth_bp.route('/me', methods=['DELETE'])
+@auth_required
+@handle_exceptions
+def delete_account():
+    """
+    Soft-delete the current user's account
+    """
+    data = request.get_json() or {}
+    password = data.get('password', '')
+
+    if not password:
+        raise BadRequestError("Password is required to delete account")
+
+    user = g.current_user
+    if not user.check_password(password):
+        raise AuthenticationError("Incorrect password")
+
+    user.soft_delete()
+
+    return api_response(
+        data={"message": "Account has been deactivated"},
+        meta={"request_id": g.request_id}
+    )
+
+
+@auth_bp.route('/forgot-password', methods=['POST'])
+@handle_exceptions
+def forgot_password():
+    """
+    Request a password reset token.
+    Always returns success to avoid leaking whether an email exists.
+    """
+    data = request.get_json()
+    if not data:
+        raise BadRequestError("Request body must be JSON")
+
+    email = data.get('email', '').strip().lower()
+    if not email:
+        raise BadRequestError("Email is required")
+
+    user = User.find_by_email(email)
+    if user:
+        token = generate_password_reset_token(user)
+        # In production, send this via email.
+        # For dev, we return it in the response.
+        import os
+        if os.getenv('FLASK_ENV') == 'development':
+            return api_response(
+                data={
+                    "message": "Password reset token generated",
+                    "reset_token": token  # Only in dev!
+                },
+                meta={"request_id": g.request_id}
+            )
+
+    return api_response(
+        data={"message": "If the email exists, a reset link has been sent"},
+        meta={"request_id": g.request_id}
+    )
+
+
+@auth_bp.route('/reset-password', methods=['POST'])
+@handle_exceptions
+def reset_password():
+    """
+    Reset password using a reset token
+
+    Request Body:
+        { "token": "...", "new_password": "..." }
+    """
+    data = request.get_json()
+    if not data:
+        raise BadRequestError("Request body must be JSON")
+
+    token = data.get('token', '').strip()
+    new_password = data.get('new_password', '')
+
+    if not token:
+        raise BadRequestError("Reset token is required")
+    if not new_password:
+        raise BadRequestError("New password is required")
+
+    is_valid, error = validate_password(new_password)
+    if not is_valid:
+        raise ValidationError(error, {"field": "new_password"})
+
+    user = verify_password_reset_token(token)
+    user.set_password(new_password)
+    clear_password_reset_token(user)
+
+    return api_response(
+        data={"message": "Password has been reset successfully"},
+        meta={"request_id": g.request_id}
+    )
+
+
+@auth_bp.route('/me/export', methods=['GET'])
+@auth_required
+@handle_exceptions
+def export_user_data():
+    """
+    Export all user data (GDPR data portability)
+    Returns a JSON dump of all user-related data
+    """
+    from app.models.medication import UserMedication, FoodLog, InteractionCheck, SearchHistory
+    from app.models.favorites import FavoriteFood, MedicationReminder
+
+    user = g.current_user
+    user_id = user.id
+
+    medications = UserMedication.query.filter_by(user_id=user_id).all()
+    food_logs = FoodLog.query.filter_by(user_id=user_id).order_by(FoodLog.logged_date.desc()).all()
+    interaction_checks = InteractionCheck.query.filter_by(user_id=user_id).all()
+    search_history = SearchHistory.query.filter_by(user_id=user_id).all()
+    favorites = FavoriteFood.query.filter_by(user_id=user_id).all()
+    reminders = MedicationReminder.query.filter_by(user_id=user_id).all()
+
+    export = {
+        "user": user.to_dict(),
+        "medications": [m.to_dict() for m in medications],
+        "food_logs": [f.to_dict() for f in food_logs],
+        "interaction_checks": [c.to_dict() for c in interaction_checks],
+        "search_history": [s.to_dict() for s in search_history],
+        "favorite_foods": [f.to_dict() for f in favorites],
+        "medication_reminders": [r.to_dict() for r in reminders],
+        "exported_at": __import__('datetime').datetime.now(
+            __import__('datetime').timezone.utc
+        ).isoformat()
+    }
+
+    return api_response(
+        data={"export": export},
         meta={"request_id": g.request_id}
     )

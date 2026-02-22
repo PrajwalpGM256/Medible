@@ -109,6 +109,10 @@ def create_app(config_name=None):
     from app.routes.medications import medications_bp
     from app.routes.food_diary import food_diary_bp
     from app.routes.interaction_history import interaction_history_bp
+    from app.routes.packaged_foods import packaged_foods_bp
+    from app.routes.dashboard import dashboard_bp
+    from app.routes.search_history import search_history_bp
+    from app.routes.admin import admin_bp
     
     # API v1 routes
     app.register_blueprint(health_bp, url_prefix='/api/v1')
@@ -119,6 +123,10 @@ def create_app(config_name=None):
     app.register_blueprint(medications_bp, url_prefix='/api/v1/medications')
     app.register_blueprint(food_diary_bp, url_prefix='/api/v1/food-diary')
     app.register_blueprint(interaction_history_bp, url_prefix='/api/v1/interaction-history')
+    app.register_blueprint(packaged_foods_bp, url_prefix='/api/v1/foods/packaged')
+    app.register_blueprint(dashboard_bp, url_prefix='/api/v1/dashboard')
+    app.register_blueprint(search_history_bp, url_prefix='/api/v1/search-history')
+    app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
     
     # Root endpoint
     @app.route('/')
@@ -126,27 +134,20 @@ def create_app(config_name=None):
         return {
             'app': 'Medible',
             'tagline': 'Med + Edible = Know your food. Know your meds. Stay safe.',
-            'version': '1.0.0',
+            'version': '1.1.0',
             'endpoints': {
                 'health': '/api/v1/health',
-                'auth': {
-                    'register': 'POST /api/v1/auth/register',
-                    'login': 'POST /api/v1/auth/login',
-                    'profile': 'GET /api/v1/auth/me'
-                },
-                'medications': {
-                    'list': 'GET /api/v1/medications',
-                    'add': 'POST /api/v1/medications',
-                    'check_food': 'POST /api/v1/medications/check-food'
-                },
-                'food_diary': {
-                    'today': 'GET /api/v1/food-diary/today',
-                    'add': 'POST /api/v1/food-diary',
-                    'summary': 'GET /api/v1/food-diary/summary?days=7'
-                },
-                'drugs': '/api/v1/drugs/search?q=aspirin',
-                'foods': '/api/v1/foods/search?q=banana',
-                'interactions': '/api/v1/interactions/check?food=grapefruit&drug=lipitor'
+                'auth': '/api/v1/auth',
+                'medications': '/api/v1/medications',
+                'food_diary': '/api/v1/food-diary',
+                'drugs': '/api/v1/drugs',
+                'foods': '/api/v1/foods',
+                'packaged_foods': '/api/v1/foods/packaged',
+                'interactions': '/api/v1/interactions',
+                'interaction_history': '/api/v1/interaction-history',
+                'dashboard': '/api/v1/dashboard',
+                'search_history': '/api/v1/search-history',
+                'admin': '/api/v1/admin'
             }
         }
     

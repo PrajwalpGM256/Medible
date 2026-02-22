@@ -245,3 +245,121 @@ def health():
             "interactions_loaded": stats.get("total_interactions", 0)
         }
     )
+
+
+@interactions_bp.route('/batch-check', methods=['POST'])
+@handle_exceptions
+def batch_check():
+    """
+    Check all of today's food diary entries against all active medications
+
+    Requires auth. Checks every food logged today against every active med.
+    """
+    from app.services.auth_service import get_current_user
+    from app.models.medication import UserMedication, FoodLog
+    from datetime import date
+    from sqlalchemy import func
+
+    get_current_user()
+    from flask import g
+    user_id = g.current_user.id
+    today = date.today()
+
+    # Get today's food names
+    today_foods = FoodLog.query.filter_by(user_id=user_id).filter(
+        func.date(FoodLog.logged_date) == today
+    ).all()
+
+    food_names = list(set(f.food_name.lower() for f in today_foods))
+
+    # Get active medication names
+    med_names = UserMedication.get_user_medication_names(user_id, active_only=True)
+
+    if not food_names or not med_names:
+        return api_response(
+            data={
+                "foods_checked": len(food_names),
+                "medications_checked": len(med_names),
+                "total_warnings": 0,
+                "results": []
+            },
+            meta={"request_id": g.request_id}
+        )
+
+    results = []
+    total_warnings = 0
+    for food in food_names:
+        result = check_food_against_medications(food, med_names)
+        warnings = result.get('warnings', [])
+        if warnings:
+            total_warnings += len(warnings)
+            results.append({
+                "food": food,
+                "warning_count": len(warnings),
+                "warnings": warnings
+            })
+
+    return api_response(
+        data={
+            "foods_checked": len(food_names),
+            "medications_checked": len(med_names),
+            "total_warnings": total_warnings,
+            "results": results
+        },
+        meta={
+            "request_id": g.request_id,
+            "source": "medible_interaction_db"
+        }
+    )
+
+
+@interactions_bp.route('/report', methods=['POST'])
+@handle_exceptions
+def report_interaction():
+    """
+    Report a missing food-drug interaction for review
+
+    Request Body:
+        {
+            "food_name": "Pomelo",
+            "drug_name": "Lipitor",
+            "description": "Pomelo has similar compounds to grapefruit",
+            "severity_suggestion": "high"
+        }
+    """
+    from app.services.auth_service import get_current_user
+    from app.models.favorites import InteractionReport
+    from app import db
+
+    get_current_user()
+
+    data = request.get_json()
+    if not data:
+        raise BadRequestError("Request body must be JSON")
+
+    food_name = validate_param(data.get('food_name', ''), 'food_name')
+    drug_name = validate_param(data.get('drug_name', ''), 'drug_name')
+
+    severity = data.get('severity_suggestion', '').lower()
+    if severity and severity not in ('low', 'medium', 'high'):
+        raise ValidationError(
+            "severity_suggestion must be low, medium, or high",
+            {"field": "severity_suggestion"}
+        )
+
+    report = InteractionReport(
+        user_id=g.current_user.id,
+        food_name=food_name,
+        drug_name=drug_name,
+        description=data.get('description', '').strip() or None,
+        severity_suggestion=severity or None
+    )
+
+    db.session.add(report)
+    db.session.commit()
+
+    return api_response(
+        data={"report": report.to_dict()},
+        meta={"request_id": g.request_id},
+        status_code=201
+    )

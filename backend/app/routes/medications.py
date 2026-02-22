@@ -328,3 +328,195 @@ def get_all_interactions():
         },
         meta={"request_id": g.request_id}
     )
+
+
+@medications_bp.route('/reminders', methods=['GET'])
+@auth_required
+@handle_exceptions
+def get_reminders():
+    """Get all medication reminders for the current user"""
+    from app.models.favorites import MedicationReminder
+
+    active_only = request.args.get('active_only', 'false').lower() == 'true'
+    reminders = MedicationReminder.get_user_reminders(g.current_user.id, active_only)
+
+    return api_response(
+        data={
+            "reminders": [r.to_dict() for r in reminders],
+            "count": len(reminders)
+        },
+        meta={"request_id": g.request_id}
+    )
+
+
+@medications_bp.route('/reminders', methods=['POST'])
+@auth_required
+@handle_exceptions
+def create_reminder():
+    """
+    Create a medication reminder
+
+    Request Body:
+        {
+            "medication_id": 1,
+            "reminder_time": "08:00",
+            "days_of_week": ["mon", "tue", "wed", "thu", "fri"]
+        }
+    """
+    import json as json_module
+    from app.models.favorites import MedicationReminder
+
+    data = request.get_json()
+    if not data:
+        raise BadRequestError("Request body must be JSON")
+
+    medication_id = data.get('medication_id')
+    if not medication_id:
+        raise ValidationError("medication_id is required", {"field": "medication_id"})
+
+    # Verify medication belongs to user
+    med = UserMedication.query.filter_by(
+        id=medication_id, user_id=g.current_user.id
+    ).first()
+    if not med:
+        raise NotFoundError("Medication not found", {"medication_id": medication_id})
+
+    reminder_time = data.get('reminder_time', '').strip()
+    if not reminder_time:
+        raise ValidationError("reminder_time is required (HH:MM)", {"field": "reminder_time"})
+
+    import re
+    if not re.match(r'^\d{2}:\d{2}$', reminder_time):
+        raise ValidationError("reminder_time must be HH:MM format", {"field": "reminder_time"})
+
+    days = data.get('days_of_week', ["mon", "tue", "wed", "thu", "fri", "sat", "sun"])
+    valid_days = {"mon", "tue", "wed", "thu", "fri", "sat", "sun"}
+    if not all(d in valid_days for d in days):
+        raise ValidationError("Invalid day in days_of_week", {"valid": list(valid_days)})
+
+    reminder = MedicationReminder(
+        user_id=g.current_user.id,
+        medication_id=medication_id,
+        reminder_time=reminder_time,
+        days_of_week=json_module.dumps(days),
+        is_active=True
+    )
+
+    db.session.add(reminder)
+    db.session.commit()
+
+    return api_response(
+        data={"reminder": reminder.to_dict()},
+        meta={"request_id": g.request_id},
+        status_code=201
+    )
+
+
+@medications_bp.route('/reminders/<int:reminder_id>', methods=['DELETE'])
+@auth_required
+@handle_exceptions
+def delete_reminder(reminder_id: int):
+    """Delete a medication reminder"""
+    from app.models.favorites import MedicationReminder
+
+    reminder = MedicationReminder.query.filter_by(
+        id=reminder_id, user_id=g.current_user.id
+    ).first()
+
+    if not reminder:
+        raise NotFoundError("Reminder not found", {"id": reminder_id})
+
+    db.session.delete(reminder)
+    db.session.commit()
+
+    return api_response(
+        data={"deleted_id": reminder_id},
+        meta={"request_id": g.request_id}
+    )
+
+
+@medications_bp.route('/import', methods=['POST'])
+@auth_required
+@handle_exceptions
+def bulk_import():
+    """
+    Bulk import medications
+
+    Request Body:
+        {
+            "medications": [
+                {"drug_name": "Lipitor", "dosage": "20mg", "frequency": "daily"},
+                {"drug_name": "Metformin", "dosage": "500mg"}
+            ]
+        }
+    """
+    data = request.get_json()
+    if not data:
+        raise BadRequestError("Request body must be JSON")
+
+    medications_data = data.get('medications', [])
+    if not isinstance(medications_data, list) or len(medications_data) == 0:
+        raise ValidationError("medications array is required and cannot be empty")
+
+    if len(medications_data) > 50:
+        raise ValidationError("Maximum 50 medications per import", {"max": 50})
+
+    imported = []
+    skipped = []
+
+    for med_data in medications_data:
+        drug_name = med_data.get('drug_name', '').strip()
+        if not drug_name:
+            skipped.append({"data": med_data, "reason": "Missing drug_name"})
+            continue
+
+        # Skip if already exists
+        existing = UserMedication.query.filter_by(
+            user_id=g.current_user.id, drug_name=drug_name
+        ).first()
+        if existing:
+            skipped.append({"drug_name": drug_name, "reason": "Already exists"})
+            continue
+
+        med = UserMedication(
+            user_id=g.current_user.id,
+            drug_name=drug_name,
+            brand_name=med_data.get('brand_name'),
+            generic_name=med_data.get('generic_name'),
+            dosage=med_data.get('dosage'),
+            frequency=med_data.get('frequency'),
+            notes=med_data.get('notes')
+        )
+        db.session.add(med)
+        imported.append(drug_name)
+
+    db.session.commit()
+
+    return api_response(
+        data={
+            "imported_count": len(imported),
+            "skipped_count": len(skipped),
+            "imported": imported,
+            "skipped": skipped
+        },
+        meta={"request_id": g.request_id},
+        status_code=201
+    )
+
+
+@medications_bp.route('/export', methods=['GET'])
+@auth_required
+@handle_exceptions
+def export_medications():
+    """Export user's medication list as JSON"""
+    medications = UserMedication.get_user_medications(g.current_user.id)
+
+    return api_response(
+        data={
+            "export": {
+                "total": len(medications),
+                "medications": [m.to_dict() for m in medications]
+            }
+        },
+        meta={"request_id": g.request_id}
+    )

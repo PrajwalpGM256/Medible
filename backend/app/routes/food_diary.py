@@ -251,3 +251,108 @@ def get_summary():
         "averages": averages,
         "days_logged": total_days_with_logs
     })
+
+
+@food_diary_bp.route('/weekly', methods=['GET'])
+@auth_required
+def get_weekly_summary():
+    """
+    Get weekly nutrition summary with averages per day
+    """
+    user_id = g.current_user.id
+    end_date = date.today()
+    start_date = end_date - timedelta(days=6)
+
+    daily_data = []
+    for i in range(7):
+        current_date = start_date + timedelta(days=i)
+        totals = FoodLog.get_daily_totals(user_id, current_date)
+        totals["date"] = current_date.isoformat()
+        totals["day_name"] = current_date.strftime("%A")
+        daily_data.append(totals)
+
+    days_with_logs = [d for d in daily_data if d["food_count"] > 0]
+    count = len(days_with_logs) if days_with_logs else 1
+
+    averages = {
+        "calories": round(sum(d["calories"] for d in daily_data) / count, 1),
+        "protein": round(sum(d["protein"] for d in daily_data) / count, 1),
+        "carbs": round(sum(d["carbs"] for d in daily_data) / count, 1),
+        "fat": round(sum(d["fat"] for d in daily_data) / count, 1),
+    }
+
+    return api_response({
+        "week_start": start_date.isoformat(),
+        "week_end": end_date.isoformat(),
+        "daily": daily_data,
+        "averages": averages,
+        "days_logged": len(days_with_logs)
+    })
+
+
+@food_diary_bp.route('/streaks', methods=['GET'])
+@auth_required
+def get_streaks():
+    """
+    Get food diary logging streak info
+    """
+    from sqlalchemy import func
+
+    user_id = g.current_user.id
+    today = date.today()
+
+    # Current streak
+    current_streak = 0
+    check_date = today
+    while True:
+        has_logs = FoodLog.query.filter_by(user_id=user_id).filter(
+            func.date(FoodLog.logged_date) == check_date
+        ).first()
+        if has_logs:
+            current_streak += 1
+            check_date = date.fromordinal(check_date.toordinal() - 1)
+        else:
+            break
+
+    # Total days ever logged
+    total_days = db.session.query(
+        func.count(func.distinct(FoodLog.logged_date))
+    ).filter_by(user_id=user_id).scalar() or 0
+
+    # Total entries
+    total_entries = FoodLog.query.filter_by(user_id=user_id).count()
+
+    return api_response({
+        "current_streak": current_streak,
+        "total_days_logged": total_days,
+        "total_entries": total_entries,
+        "today_logged": current_streak > 0
+    })
+
+
+@food_diary_bp.route('/export', methods=['GET'])
+@auth_required
+def export_food_diary():
+    """
+    Export food diary as JSON
+
+    Query Params:
+        days (int): Number of days to export, default 30
+        format (str): 'json' (default)
+    """
+    user_id = g.current_user.id
+    days = request.args.get('days', 30, type=int)
+
+    end_date = date.today()
+    start_date = end_date - timedelta(days=days - 1)
+
+    logs = FoodLog.get_user_logs_range(user_id, start_date, end_date)
+
+    return api_response({
+        "export": {
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
+            "total_entries": len(logs),
+            "logs": [log.to_dict() for log in logs]
+        }
+    })

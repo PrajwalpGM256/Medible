@@ -19,9 +19,13 @@ class User(db.Model):
     first_name = db.Column(db.String(100), nullable=True)
     last_name = db.Column(db.String(100), nullable=True)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
     last_login_at = db.Column(db.DateTime, nullable=True)
+    deleted_at = db.Column(db.DateTime, nullable=True)
+    password_reset_token = db.Column(db.String(255), nullable=True)
+    password_reset_expires = db.Column(db.DateTime, nullable=True)
     
     # Relationships
     medications = db.relationship('UserMedication', backref='user', lazy='dynamic', cascade='all, delete-orphan')
@@ -47,6 +51,17 @@ class User(db.Model):
         """Update last login timestamp"""
         self.last_login_at = datetime.now(timezone.utc)
         db.session.commit()
+
+    def soft_delete(self):
+        """Soft delete user account"""
+        self.deleted_at = datetime.now(timezone.utc)
+        self.is_active = False
+        db.session.commit()
+
+    @property
+    def is_deleted(self) -> bool:
+        """Check if the user has been soft-deleted"""
+        return self.deleted_at is not None
     
     @property
     def full_name(self) -> str:
@@ -72,13 +87,17 @@ class User(db.Model):
     
     @staticmethod
     def find_by_email(email: str) -> 'User':
-        """Find user by email"""
-        return User.query.filter_by(email=email.lower().strip()).first()
-    
+        """Find active (non-deleted) user by email"""
+        return User.query.filter_by(email=email.lower().strip()).filter(
+            User.deleted_at.is_(None)
+        ).first()
+
     @staticmethod
     def find_by_id(user_id: int) -> 'User':
-        """Find user by ID"""
-        return User.query.get(user_id)
+        """Find active (non-deleted) user by ID"""
+        return User.query.filter_by(id=user_id).filter(
+            User.deleted_at.is_(None)
+        ).first()
     
     def __repr__(self):
         return f'<User {self.email}>'

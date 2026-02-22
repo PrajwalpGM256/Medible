@@ -75,7 +75,7 @@ def save_check():
         interactions=interactions
     )
     
-    return api_response({"check": check.to_dict()}, 201)
+    return api_response({"check": check.to_dict()}, status_code=201)
 
 
 @interaction_history_bp.route('/<int:check_id>', methods=['DELETE'])
@@ -114,3 +114,60 @@ def clear_history():
     db.session.commit()
     
     return api_response({"deleted_count": deleted})
+
+
+@interaction_history_bp.route('/stats', methods=['GET'])
+@auth_required
+def get_stats():
+    """
+    Get user's interaction check statistics
+
+    Returns:
+        Total checks, severity distribution, most-flagged foods
+    """
+    import json
+    from sqlalchemy import func
+
+    user_id = g.current_user.id
+
+    total_checks = InteractionCheck.query.filter_by(user_id=user_id).count()
+
+    # Get all checks to analyze
+    checks = InteractionCheck.query.filter_by(user_id=user_id).all()
+
+    severity_counts = {"high": 0, "medium": 0, "low": 0, "none": 0}
+    food_counts = {}
+
+    for check in checks:
+        food_name = check.food_name.lower()
+        food_counts[food_name] = food_counts.get(food_name, 0) + 1
+
+        try:
+            interactions = json.loads(check.interactions_json) if check.interactions_json else []
+        except (json.JSONDecodeError, TypeError):
+            interactions = []
+
+        if not interactions:
+            severity_counts["none"] += 1
+        else:
+            severities_found = set()
+            for interaction in interactions:
+                sev = interaction.get('severity', 'low').lower()
+                if sev in severity_counts:
+                    severities_found.add(sev)
+            # Count the highest severity found
+            if 'high' in severities_found:
+                severity_counts['high'] += 1
+            elif 'medium' in severities_found:
+                severity_counts['medium'] += 1
+            elif 'low' in severities_found:
+                severity_counts['low'] += 1
+
+    # Top 10 most-checked foods
+    top_foods = sorted(food_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+
+    return api_response({
+        "total_checks": total_checks,
+        "severity_distribution": severity_counts,
+        "top_checked_foods": [{"food": f, "count": c} for f, c in top_foods]
+    })

@@ -4,6 +4,7 @@ Handles JWT token generation, validation, and user authentication
 """
 
 import jwt
+import secrets
 from datetime import datetime, timezone, timedelta
 from functools import wraps
 from flask import request, g, current_app
@@ -66,13 +67,20 @@ def generate_refresh_token(user: User, expires_in: int = 604800) -> str:
 
 
 def decode_token(token: str) -> dict:
-    """Decode and validate JWT token"""
+    """Decode and validate JWT token, checking blacklist"""
     try:
         payload = jwt.decode(
             token,
             current_app.config['SECRET_KEY'],
             algorithms=['HS256']
         )
+
+        # Check if token is blacklisted
+        from app.models.token_blacklist import TokenBlacklist
+        jti = payload.get('jti')
+        if jti and TokenBlacklist.is_blacklisted(jti):
+            raise AuthenticationError("Token has been revoked", {"reason": "blacklisted"})
+
         return payload
     except jwt.ExpiredSignatureError:
         raise AuthenticationError("Token has expired", {"reason": "expired"})
@@ -187,3 +195,56 @@ def validate_email(email: str) -> tuple[bool, str]:
         return False, "Email too long"
     
     return True, ""
+
+
+def generate_password_reset_token(user: User) -> str:
+    """
+    Generate a password reset token for the user
+    Token expires in 1 hour
+    """
+    from app import db
+    token = secrets.token_urlsafe(32)
+    user.password_reset_token = token
+    user.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
+    db.session.commit()
+    return token
+
+
+def verify_password_reset_token(token: str) -> User:
+    """
+    Verify a password reset token and return the associated user
+    Raises AuthenticationError if token is invalid or expired
+    """
+    user = User.query.filter_by(password_reset_token=token).filter(
+        User.deleted_at.is_(None)
+    ).first()
+
+    if not user:
+        raise AuthenticationError("Invalid reset token")
+
+    if user.password_reset_expires < datetime.now(timezone.utc):
+        raise AuthenticationError("Reset token has expired")
+
+    return user
+
+
+def clear_password_reset_token(user: User):
+    """Clear the password reset token after successful reset"""
+    from app import db
+    user.password_reset_token = None
+    user.password_reset_expires = None
+    db.session.commit()
+
+
+def admin_required(f):
+    """
+    Decorator to require admin access for a route
+    Must be used after @auth_required
+    """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        user = get_current_user()
+        if not user.is_admin:
+            raise AuthorizationError("Admin access required")
+        return f(*args, **kwargs)
+    return decorated
