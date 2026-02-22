@@ -8,6 +8,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import { useMedicationsStore } from '@/stores/medications'
 import { SEVERITY_CONFIG } from '@/constants'
 import type { Severity } from '@/types'
+import AnimatedBackground from '@/components/animations/AnimatedBackground.vue'
 
 const meds = useMedicationsStore()
 
@@ -23,11 +24,12 @@ const severityIcons = { high: AlertTriangle, moderate: Info, low: CheckCircle }
 </script>
 
 <template>
-  <div class="min-h-screen bg-background">
+  <div class="h-screen flex flex-col overflow-hidden bg-background">
+    <AnimatedBackground />
     <AppNavbar />
-    <main class="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
+    <main class="flex-1 overflow-y-auto scrollbar-hide mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
       <div class="mb-6">
-        <h1 class="text-2xl font-bold text-foreground">Food Interactions</h1>
+        <h1 class="text-2xl font-bold text-gradient-animate">Food Interactions</h1>
         <p class="text-muted-foreground">Foods to watch based on your medications</p>
       </div>
       <LoadingSpinner v-if="meds.loading" class="py-12" />
@@ -45,7 +47,12 @@ const severityIcons = { high: AlertTriangle, moderate: Info, low: CheckCircle }
         </TabsList>
         <TabsContent value="all">
           <div class="space-y-4">
-            <Card v-for="interaction in meds.interactions" :key="`${interaction.drugName}-${interaction.foodName}`" :class="SEVERITY_CONFIG[interaction.severity].borderClass">
+            <Card
+              v-for="interaction in meds.interactions"
+              :key="`${interaction.drugName}-${interaction.foodName}`"
+              variant="gold"
+              :class="['bg-card/80 dark:bg-card/60 backdrop-blur-md shadow-md transition-colors duration-200 hover:bg-teal-500/5 cursor-pointer', SEVERITY_CONFIG[interaction.severity].borderClass]"
+            >
               <CardHeader class="pb-2">
                 <div class="flex items-start justify-between">
                   <div class="flex items-center gap-2">
@@ -67,7 +74,12 @@ const severityIcons = { high: AlertTriangle, moderate: Info, low: CheckCircle }
         </TabsContent>
         <TabsContent v-for="severity in (['high', 'moderate', 'low'] as Severity[])" :key="severity" :value="severity">
           <div class="space-y-4">
-            <Card v-for="interaction in groupedInteractions[severity]" :key="`${interaction.drugName}-${interaction.foodName}`" :class="SEVERITY_CONFIG[severity].borderClass">
+            <Card
+              v-for="interaction in groupedInteractions[severity]"
+              :key="`${interaction.drugName}-${interaction.foodName}`"
+              variant="gold"
+              :class="['bg-card/80 dark:bg-card/60 backdrop-blur-md shadow-md transition-colors duration-200 hover:bg-teal-500/5 cursor-pointer', SEVERITY_CONFIG[severity].borderClass]"
+            >
               <CardHeader class="pb-2"><CardTitle class="text-lg">{{ interaction.drugName }} + {{ interaction.foodName }}</CardTitle></CardHeader>
               <CardContent>
                 <p class="text-muted-foreground">{{ interaction.effect }}</p>
