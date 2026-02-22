@@ -80,7 +80,7 @@ async function confirmDelete() {
   <div class="h-screen flex flex-col overflow-hidden bg-background">
     <AnimatedBackground />
     <AppNavbar />
-    <main class="flex-1 overflow-y-auto scrollbar-hide mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
+    <main class="flex-1 flex flex-col min-h-0 overflow-hidden mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
       <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gradient-animate">My Medications</h1>
@@ -133,15 +133,15 @@ async function confirmDelete() {
           </DialogContent>
         </Dialog>
       </div>
-      <Card variant="gold" class="bg-card/80 dark:bg-card/60 backdrop-blur-md shadow-md">
-        <CardContent class="p-0">
+      <Card variant="gold" class="bg-card/80 dark:bg-card/60 backdrop-blur-md shadow-md flex-1 flex flex-col min-h-0">
+        <CardContent class="p-0 flex-1 flex flex-col min-h-0">
           <LoadingSpinner v-if="meds.loading && !meds.medications.length" class="py-12" />
           <div v-else-if="!meds.medications.length" class="py-12 text-center">
             <Pill class="mx-auto h-12 w-12 text-muted-foreground/50" />
             <p class="mt-4 text-lg font-medium text-foreground">No medications yet</p>
             <p class="mt-1 text-muted-foreground">Add your first medication to get started</p>
           </div>
-          <div v-else class="divide-y divide-border">
+          <div v-else class="divide-y divide-border flex-1 min-h-0 overflow-y-auto scrollbar-hide">
             <div v-for="med in sortedMedications" :key="med.id" class="flex items-center gap-4 p-4 transition-colors duration-200 hover:bg-teal-500/5 cursor-pointer">
               <div class="rounded-xl bg-teal-500/10 p-3"><Pill class="h-5 w-5 text-teal-600 dark:text-teal-400" /></div>
               <div class="flex-1">
@@ -165,3 +165,13 @@ async function confirmDelete() {
     </main>
   </div>
 </template>
+
+<style scoped>
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+</style>

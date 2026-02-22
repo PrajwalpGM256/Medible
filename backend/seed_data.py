@@ -14,6 +14,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from app import create_app, db
 from app.models.user import User
 from app.models.medication import UserMedication, SearchHistory, FoodLog, InteractionCheck
+from app.models.token_blacklist import TokenBlacklist
+from app.models.favorites import FavoriteFood, MedicationReminder, InteractionReport
 from datetime import datetime, timezone, timedelta, date
 
 # Demo Users with comprehensive data
@@ -293,6 +295,32 @@ DEMO_USERS = [
     }
 ]
 
+# Admin user with elevated privileges
+ADMIN_USER = {
+    "email": "admin@medible.com",
+    "password": "Admin123!",
+    "first_name": "Admin",
+    "last_name": "Medible"
+}
+
+# Sample favorites, reminders, and reports for the demo user
+DEMO_EXTRAS = {
+    "favorites": [
+        {"food_name": "Banana", "source": "usda", "fdc_id": 173944},
+        {"food_name": "Grilled Chicken Breast", "source": "usda", "fdc_id": 171477},
+        {"food_name": "Almonds", "source": "usda", "fdc_id": 170567},
+    ],
+    "reminders": [
+        {"drug_name": "Lipitor", "reminder_time": "21:00", "days_of_week": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]},
+        {"drug_name": "Metformin", "reminder_time": "08:00", "days_of_week": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]},
+        {"drug_name": "Metformin", "reminder_time": "18:00", "days_of_week": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]},
+    ],
+    "reports": [
+        {"food_name": "Pomelo", "drug_name": "Lipitor", "description": "Pomelo contains similar furanocoumarins as grapefruit", "severity_suggestion": "high"},
+        {"food_name": "Star Fruit", "drug_name": "Warfarin", "description": "Star fruit may affect blood clotting", "severity_suggestion": "medium"},
+    ]
+}
+
 
 def seed_database():
     """Seed the database with demo data"""
@@ -413,9 +441,91 @@ def seed_database():
             if interaction_checks:
                 print(f"   ⚠️  Added {len(interaction_checks)} interaction check history items")
         
-        # Commit all changes
+        # Commit user data
         db.session.commit()
-        
+
+        # Add extras for the demo user (favorites, reminders, reports)
+        demo_user = User.find_by_email("demo@medible.com")
+        extras_created = {"favorites": 0, "reminders": 0, "reports": 0}
+
+        if demo_user:
+            # Favorites
+            for fav_data in DEMO_EXTRAS.get("favorites", []):
+                existing = FavoriteFood.query.filter_by(
+                    user_id=demo_user.id, food_name=fav_data["food_name"]
+                ).first()
+                if not existing:
+                    fav = FavoriteFood(
+                        user_id=demo_user.id,
+                        food_name=fav_data["food_name"],
+                        source=fav_data.get("source", "usda"),
+                        fdc_id=fav_data.get("fdc_id"),
+                        off_id=fav_data.get("off_id")
+                    )
+                    db.session.add(fav)
+                    extras_created["favorites"] += 1
+
+            # Reminders
+            for rem_data in DEMO_EXTRAS.get("reminders", []):
+                med = UserMedication.query.filter_by(
+                    user_id=demo_user.id, drug_name=rem_data["drug_name"]
+                ).first()
+                if med:
+                    existing = MedicationReminder.query.filter_by(
+                        user_id=demo_user.id, medication_id=med.id,
+                        reminder_time=rem_data["reminder_time"]
+                    ).first()
+                    if not existing:
+                        reminder = MedicationReminder(
+                            user_id=demo_user.id,
+                            medication_id=med.id,
+                            reminder_time=rem_data["reminder_time"],
+                            days_of_week=json.dumps(rem_data.get("days_of_week", [])),
+                            is_active=True
+                        )
+                        db.session.add(reminder)
+                        extras_created["reminders"] += 1
+
+            # Interaction reports
+            for rep_data in DEMO_EXTRAS.get("reports", []):
+                existing = InteractionReport.query.filter_by(
+                    user_id=demo_user.id, food_name=rep_data["food_name"],
+                    drug_name=rep_data["drug_name"]
+                ).first()
+                if not existing:
+                    report = InteractionReport(
+                        user_id=demo_user.id,
+                        food_name=rep_data["food_name"],
+                        drug_name=rep_data["drug_name"],
+                        description=rep_data.get("description"),
+                        severity_suggestion=rep_data.get("severity_suggestion")
+                    )
+                    db.session.add(report)
+                    extras_created["reports"] += 1
+
+            db.session.commit()
+            print(f"\n   ⭐ Added {extras_created['favorites']} favorites for demo user")
+            print(f"   ⏰ Added {extras_created['reminders']} reminders for demo user")
+            print(f"   📝 Added {extras_created['reports']} interaction reports for demo user")
+
+        # Create admin user
+        admin = User.find_by_email(ADMIN_USER["email"])
+        if not admin:
+            admin = User(
+                email=ADMIN_USER["email"],
+                password=ADMIN_USER["password"],
+                first_name=ADMIN_USER["first_name"],
+                last_name=ADMIN_USER["last_name"]
+            )
+            db.session.add(admin)
+            db.session.flush()
+            admin.is_admin = True
+            db.session.commit()
+            print(f"\n   🛡️  Created admin user: {ADMIN_USER['email']}")
+            users_created += 1
+        else:
+            print(f"\n   ⏭️  Admin user {ADMIN_USER['email']} already exists")
+
         print("\n" + "=" * 50)
         print(f"🎉 Seeding complete!")
         print(f"   👤 Users created: {users_created}")
@@ -429,6 +539,8 @@ def seed_database():
             print(f"   Email: {user_data['email']}")
             print(f"   Password: {user_data['password']}")
             print()
+        print(f"   🛡️  Admin: {ADMIN_USER['email']}")
+        print(f"   Password: {ADMIN_USER['password']}")
 
 
 def clear_database():
@@ -442,6 +554,10 @@ def clear_database():
         print("\n⚠️  Clearing all data...")
         
         # Delete in order to respect foreign keys
+        InteractionReport.query.delete()
+        MedicationReminder.query.delete()
+        FavoriteFood.query.delete()
+        TokenBlacklist.query.delete()
         InteractionCheck.query.delete()
         FoodLog.query.delete()
         SearchHistory.query.delete()

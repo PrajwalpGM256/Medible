@@ -30,10 +30,10 @@ const userFirstName = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-background">
+  <div class="h-screen overflow-hidden bg-background flex flex-col">
     <AnimatedBackground />
     <AppNavbar />
-    <main class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+    <main class="mx-auto w-full max-w-7xl flex-1 flex flex-col px-4 py-4 sm:px-6 lg:px-8 min-h-0 overflow-hidden">
       <!-- Header -->
       <div class="mb-4">
         <h1 class="text-xl font-bold text-foreground sm:text-2xl">{{ DASHBOARD_CONTENT.welcome }}, {{ userFirstName }}! </h1>
@@ -72,20 +72,20 @@ const userFirstName = computed(() => {
       </div>
 
       <!-- Main Content Grid -->
-      <div class="grid gap-4 lg:grid-cols-2">
-        <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm">
+      <div class="grid gap-4 lg:grid-cols-2 flex-1 min-h-0">
+        <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col min-h-0">
           <CardHeader class="flex flex-row items-center justify-between py-3 px-4">
             <CardTitle class="text-base">{{ DASHBOARD_CONTENT.myMedications }}</CardTitle>
             <RouterLink :to="ROUTES.MEDICATIONS"><Button variant="ghost" size="icon" class="h-7 w-7 group"><ArrowUpRight class="h-4 w-4 transition-transform duration-200 group-hover:rotate-45" /></Button></RouterLink>
           </CardHeader>
-          <CardContent class="px-4 pb-4 pt-0">
+          <CardContent class="px-4 pb-4 pt-0 flex-1 flex flex-col min-h-0">
             <LoadingSpinner v-if="meds.loading" />
             <div v-else-if="meds.medications.length === 0" class="py-6 text-center">
               <Pill class="mx-auto h-10 w-10 text-muted-foreground/50" />
               <p class="mt-2 text-sm text-muted-foreground">{{ DASHBOARD_CONTENT.noMedications }}</p>
               <RouterLink :to="ROUTES.MEDICATIONS"><Button class="mt-3" size="sm"><Plus class="mr-2 h-4 w-4" />Add Medication</Button></RouterLink>
             </div>
-            <div v-else class="space-y-2 max-h-64 overflow-y-auto scrollbar-hide" style="scrollbar-width: none; -ms-overflow-style: none;">
+            <div v-else class="space-y-2 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
               <div v-for="med in meds.medications" :key="med.id" class="flex items-center gap-2 rounded-md border border-border p-2 transition-all duration-200 hover:scale-[1.02] hover:shadow-md hover:border-teal-500/50 hover:bg-teal-500/5 cursor-pointer">
                 <div class="rounded-md bg-teal-500/10 p-1.5"><Pill class="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" /></div>
                 <div class="flex-1 truncate"><p class="text-sm font-medium text-foreground">{{ med.drugName }}</p><p class="text-xs text-muted-foreground">{{ med.dosage || 'No dosage set' }}</p></div>
@@ -93,18 +93,18 @@ const userFirstName = computed(() => {
             </div>
           </CardContent>
         </Card>
-        <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm">
+        <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col min-h-0">
           <CardHeader class="flex flex-row items-center justify-between py-3 px-4">
             <CardTitle class="text-base">Recent Alerts</CardTitle>
             <RouterLink :to="ROUTES.INTERACTIONS"><Button variant="ghost" size="icon" class="h-7 w-7 group"><ArrowUpRight class="h-4 w-4 transition-transform duration-200 group-hover:rotate-45" /></Button></RouterLink>
           </CardHeader>
-          <CardContent class="px-4 pb-4 pt-0">
+          <CardContent class="px-4 pb-4 pt-0 flex-1 flex flex-col min-h-0">
             <LoadingSpinner v-if="historyStore.loading" />
             <div v-else-if="historyStore.history.length === 0" class="py-6 text-center">
               <AlertTriangle class="mx-auto h-10 w-10 text-muted-foreground/50" />
               <p class="mt-2 text-sm text-muted-foreground">No interaction checks yet</p>
             </div>
-            <div v-else class="space-y-2 max-h-64 overflow-y-auto scrollbar-hide" style="scrollbar-width: none; -ms-overflow-style: none;">
+            <div v-else class="space-y-2 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
               <div 
                 v-for="check in historyStore.history" 
                 :key="check.id" 
@@ -147,5 +147,9 @@ const userFirstName = computed(() => {
 <style scoped>
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 </style>
