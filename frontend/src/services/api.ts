@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { API_BASE_URL, API_CONFIG, ENDPOINTS, ROUTES } from '@/constants'
+import { API_BASE_URL, API_CONFIG, ENDPOINTS } from '@/constants'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -35,6 +35,13 @@ export const authApi = {
     api.post(ENDPOINTS.AUTH.REGISTER, data),
   logout: () => api.post(ENDPOINTS.AUTH.LOGOUT),
   getProfile: () => api.get(ENDPOINTS.AUTH.PROFILE),
+  updateProfile: (data: { first_name?: string; last_name?: string; email?: string }) =>
+    api.patch(ENDPOINTS.AUTH.UPDATE_PROFILE, data),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    api.put(ENDPOINTS.AUTH.CHANGE_PASSWORD, { current_password: currentPassword, new_password: newPassword }),
+  deleteAccount: (password: string) =>
+    api.delete(ENDPOINTS.AUTH.DELETE_ACCOUNT, { data: { password } }),
+  exportData: () => api.get(ENDPOINTS.AUTH.EXPORT_DATA),
 }
 
 // Drug APIs
@@ -74,9 +81,9 @@ export const userMedicationApi = {
 export const foodDiaryApi = {
   getToday: () => api.get(ENDPOINTS.FOOD_DIARY.TODAY),
   getByDate: (date: string) => api.get(ENDPOINTS.FOOD_DIARY.LIST, { params: { date } }),
-  getRange: (startDate: string, endDate: string) => 
+  getRange: (startDate: string, endDate: string) =>
     api.get(ENDPOINTS.FOOD_DIARY.LIST, { params: { start_date: startDate, end_date: endDate } }),
-  getSummary: (days: number = 7) => 
+  getSummary: (days: number = 7) =>
     api.get(ENDPOINTS.FOOD_DIARY.SUMMARY, { params: { days } }),
   add: (data: {
     food_name: string

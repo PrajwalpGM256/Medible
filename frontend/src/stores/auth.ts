@@ -40,10 +40,10 @@ export const useAuthStore = defineStore('auth', () => {
       const nameParts = name.trim().split(' ')
       const firstName = nameParts[0] || ''
       const lastName = nameParts.slice(1).join(' ') || ''
-      
-      const response = await authApi.register({ 
-        email, 
-        password, 
+
+      const response = await authApi.register({
+        email,
+        password,
         name,
         first_name: firstName,
         last_name: lastName
@@ -102,12 +102,70 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     token.value = null
     localStorage.removeItem('token')
-    
+
     // Reset other stores to clear cached data
     const medsStore = useMedicationsStore()
     const historyStore = useInteractionHistoryStore()
     medsStore.reset()
     historyStore.reset()
+  }
+
+  async function updateProfile(data: { first_name?: string; last_name?: string; email?: string }): Promise<boolean> {
+    loading.value = true
+    error.value = null
+    try {
+      const response = await authApi.updateProfile(data)
+      user.value = response.data.data.user
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.error?.message || 'Update failed'
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function changePassword(currentPassword: string, newPassword: string): Promise<boolean> {
+    loading.value = true
+    error.value = null
+    try {
+      await authApi.changePassword(currentPassword, newPassword)
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.error?.message || 'Password change failed'
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function deleteAccount(password: string): Promise<boolean> {
+    loading.value = true
+    error.value = null
+    try {
+      await authApi.deleteAccount(password)
+      logout()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.error?.message || 'Account deletion failed'
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function exportData(): Promise<any> {
+    loading.value = true
+    error.value = null
+    try {
+      const response = await authApi.exportData()
+      return response.data.data.export
+    } catch (err: any) {
+      error.value = err.response?.data?.error?.message || 'Export failed'
+      return null
+    } finally {
+      loading.value = false
+    }
   }
 
   function clearError(): void {
@@ -117,6 +175,8 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     user, token, loading, error,
     isAuthenticated, userName,
-    login, register, logout, fetchProfile, validateSession, clearError,
+    login, register, logout, fetchProfile, validateSession,
+    updateProfile, changePassword, deleteAccount, exportData,
+    clearError,
   }
 })

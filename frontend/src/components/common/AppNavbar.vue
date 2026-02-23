@@ -56,10 +56,10 @@ function handleLogout() {
             </RouterLink>
           </template>
           <template v-else-if="route.path !== ROUTES.LOGIN && route.path !== ROUTES.REGISTER">
-            <RouterLink :to="ROUTES.PROFILE" class="hidden sm:block">
-              <Button variant="ghost">Profile</Button>
+            <RouterLink :to="ROUTES.PROFILE" class="hidden sm:block text-sm font-medium text-muted-foreground transition-all hover:text-teal-400 hover:drop-shadow-[0_0_6px_rgba(20,184,166,0.6)] px-3 py-2">
+              Profile
             </RouterLink>
-            <Button variant="outline" @click="handleLogout">Logout</Button>
+            <Button variant="outline" hover="glow" @click="handleLogout">Logout</Button>
           </template>
           <Button variant="ghost" size="icon" class="md:hidden" @click="toggleMenu">
             <Menu v-if="!mobileMenuOpen" class="h-5 w-5" />

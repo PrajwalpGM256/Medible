@@ -1,49 +1,48 @@
 <script setup lang="ts">
-import { User, Mail, Calendar, LogOut } from 'lucide-vue-next'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { computed } from 'vue'
+import { Calendar } from 'lucide-vue-next'
 import AppNavbar from '@/components/common/AppNavbar.vue'
+import AnimatedBackground from '@/components/animations/AnimatedBackground.vue'
+import EditProfileForm from '@/components/profile/EditProfileForm.vue'
 import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
-import { ROUTES } from '@/constants'
 
 const auth = useAuthStore()
-const router = useRouter()
 
-function handleLogout() {
-  auth.logout()
-  router.push(ROUTES.LOGIN)
-}
+const memberSince = auth.user?.created_at
+  ? new Date(auth.user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  : 'Unknown'
+
+const initials = computed(() => {
+  const f = auth.user?.first_name?.[0] || ''
+  const l = auth.user?.last_name?.[0] || ''
+  return (f + l).toUpperCase() || '?'
+})
 </script>
 
 <template>
-  <div class="min-h-screen bg-background">
+  <div class="h-screen flex flex-col overflow-hidden bg-background">
+    <AnimatedBackground />
     <AppNavbar />
-    <main class="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-8">
-      <h1 class="mb-6 text-2xl font-bold text-foreground">Profile</h1>
-      <Card>
-        <CardHeader><CardTitle>Account Information</CardTitle></CardHeader>
-        <CardContent class="space-y-4">
-          <div class="flex items-center gap-4 rounded-lg border border-border p-4">
-            <div class="rounded-full bg-teal-500/10 p-3"><User class="h-6 w-6 text-teal-600 dark:text-teal-400" /></div>
-            <div><p class="text-sm text-muted-foreground">Name</p><p class="font-medium text-foreground">{{ auth.user?.full_name || auth.user?.name || 'Not set' }}</p></div>
+    <main class="flex-1 min-h-0 flex flex-col items-center justify-center overflow-hidden px-4">
+      <div class="w-full max-w-2xl space-y-6">
+        <!-- Profile Header -->
+        <div class="flex items-center gap-5">
+          <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 text-2xl font-bold text-white shadow-xl ring-2 ring-teal-500/30 ring-offset-2 ring-offset-background">
+            {{ initials }}
           </div>
-          <div class="flex items-center gap-4 rounded-lg border border-border p-4">
-            <div class="rounded-full bg-cyan-500/10 p-3"><Mail class="h-6 w-6 text-cyan-600 dark:text-cyan-400" /></div>
-            <div><p class="text-sm text-muted-foreground">Email</p><p class="font-medium text-foreground">{{ auth.user?.email || 'Not set' }}</p></div>
+          <div>
+            <h1 class="text-2xl font-bold text-foreground">{{ auth.user?.full_name || 'User' }}</h1>
+            <p class="text-sm text-muted-foreground">{{ auth.user?.email }}</p>
+            <div class="flex items-center gap-1.5 mt-1">
+              <Calendar class="h-3 w-3 text-muted-foreground/70" />
+              <p class="text-xs text-muted-foreground/70">Member since {{ memberSince }}</p>
+            </div>
           </div>
-          <div class="flex items-center gap-4 rounded-lg border border-border p-4">
-            <div class="rounded-full bg-emerald-500/10 p-3"><Calendar class="h-6 w-6 text-emerald-600 dark:text-emerald-400" /></div>
-            <div><p class="text-sm text-muted-foreground">Member Since</p><p class="font-medium text-foreground">{{ auth.user?.created_at ? new Date(auth.user.created_at).toLocaleDateString() : 'Unknown' }}</p></div>
-          </div>
-        </CardContent>
-      </Card>
-      <Card class="mt-6">
-        <CardHeader><CardTitle>Actions</CardTitle></CardHeader>
-        <CardContent>
-          <Button variant="destructive" class="w-full gap-2" @click="handleLogout"><LogOut class="h-4 w-4" />Sign Out</Button>
-        </CardContent>
-      </Card>
+        </div>
+
+        <!-- Profile Info Card (includes Profile Actions inside) -->
+        <EditProfileForm />
+      </div>
     </main>
   </div>
 </template>

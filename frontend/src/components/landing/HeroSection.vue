@@ -20,10 +20,10 @@ const { hero } = LANDING_CONTENT
       <p class="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl bg-background/50 backdrop-blur-[1px] rounded-xl p-2">{{ hero.subtitle }}</p>
       <div class="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
         <RouterLink :to="ROUTES.REGISTER">
-          <Button size="lg" hover class="w-full gap-2 sm:w-auto">{{ hero.cta }}<ArrowRight class="h-4 w-4" /></Button>
+          <Button size="lg" hover="glow" class="w-full gap-2 sm:w-auto">{{ hero.cta }}<ArrowRight class="h-4 w-4" /></Button>
         </RouterLink>
         <a href="#how-it-works" class="w-full sm:w-auto">
-          <Button variant="outline" hover size="lg" class="w-full gap-2 sm:w-auto">
+          <Button variant="outline" hover="glow" size="lg" class="w-full gap-2 sm:w-auto">
             <Play class="h-4 w-4" />
             {{ hero.secondaryCta }}
           </Button>

@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { useStorage } from '@vueuse/core'
 import type { Theme } from '@/types'
 import { THEME_STORAGE_KEY } from '@/constants'

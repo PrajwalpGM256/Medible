@@ -9,7 +9,7 @@ const props = defineProps<{
 
 const textRef = ref<HTMLElement | null>(null)
 const dotRef = ref<HTMLElement | null>(null)
-const containerRef = ref<HTMLElement | null>(null)
+
 
 const sizeMap = {
   sm: { text: 'text-2xl', dot: 'h-0.5 w-0.5', height: 'h-8' },

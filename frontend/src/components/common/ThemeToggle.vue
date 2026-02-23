@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { useTheme } from '@/composables/useTheme'
 
 const { theme, toggleTheme } = useTheme()
-const icons = { light: Sun, dark: Moon }
+const icons: Record<string, typeof Sun> = { light: Sun, dark: Moon }
 
 const isMounted = ref(false)
 

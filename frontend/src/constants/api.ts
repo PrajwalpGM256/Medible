@@ -6,6 +6,12 @@ export const ENDPOINTS = {
     REGISTER: '/auth/register',
     LOGOUT: '/auth/logout',
     PROFILE: '/auth/me',
+    UPDATE_PROFILE: '/auth/me',
+    CHANGE_PASSWORD: '/auth/me/password',
+    DELETE_ACCOUNT: '/auth/me',
+    EXPORT_DATA: '/auth/me/export',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    RESET_PASSWORD: '/auth/reset-password',
   },
   DRUGS: {
     SEARCH: '/drugs/search',
