@@ -87,6 +87,9 @@ async function handleSubmit() {
             {{ content.noAccount }}
             <RouterLink :to="ROUTES.REGISTER" class="font-medium text-primary hover:underline">{{ content.signUp }}</RouterLink>
           </p>
+          <p class="mt-4 text-center text-xs text-amber-500 dark:text-amber-400 mx-auto max-w-sm font-medium">
+            Note: First time login will cause a delay of ~1 minute to wait for the backend to start as it's on a free tier.
+          </p>
         </CardContent>
         </Card>
       </div>
