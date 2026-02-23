@@ -4,6 +4,16 @@ Check food-drug interactions before they become a problem.
 
 Medible helps users manage their medications and quickly check whether specific foods might interfere with their prescriptions. Built for people who want straightforward answers without digging through medical journals.
 
+## Live Demo
+
+**Live URL:** [https://medible.prajwalgm.tech](https://medible.prajwalgm.tech)
+
+You can try the fully featured live application using the pre-configured demo account:
+* **Email:** `demo@medible.com`
+* **Password:** `Demo123!`
+
+*(The live database automatically runs a GitHub Action to refresh its demo data every night)*
+
 ---
 
 ## Tech Stack
