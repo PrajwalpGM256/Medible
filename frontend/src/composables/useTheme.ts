@@ -4,7 +4,7 @@ import type { Theme } from '@/types'
 import { THEME_STORAGE_KEY } from '@/constants'
 
 export function useTheme() {
-  const storedTheme = useStorage<Theme>(THEME_STORAGE_KEY, 'light')
+  const storedTheme = useStorage<Theme>(THEME_STORAGE_KEY, 'dark')
   const theme = ref<Theme>(storedTheme.value)
 
   const isDark = ref(false)
