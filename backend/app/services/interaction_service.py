@@ -40,7 +40,15 @@ class InteractionEngine:
     
     _instance = None
     _interactions = None
-    
+
+    # Commonly used synonyms for better matching
+    _synonyms = {
+        "grape juice": "grapefruit",
+        "dairy": "milk",
+        "peanut butter": "peanut",
+        "gluten": "wheat"
+    }
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
@@ -98,11 +106,24 @@ class InteractionEngine:
             "food_categories": len(food_categories)
         }
     
-    def _normalize(self, text: str) -> str:
-        """Normalize text for matching (lowercase, remove special chars)"""
+    def _normalize(self, text) -> str:
+        """Normalize text for matching (lowercase, remove special chars, apply synonyms)"""
         if not text:
             return ""
-        return re.sub(r'[^a-z0-9\s]', '', text.lower().strip())
+        
+        # If the input is a list (e.g. from OpenFDA), join it into a string
+        if isinstance(text, list):
+            text = " ".join(str(item) for item in text)
+            
+        normalized = re.sub(r'[^a-z0-9\s]', '', str(text).lower().strip())
+        
+        # Apply synonyms
+        for k, v in self._synonyms.items():
+            if k in normalized:
+                normalized = normalized.replace(k, v)
+                break
+                
+        return normalized
     
     def _fuzzy_match(self, query: str, targets: list) -> Optional[str]:
         """
@@ -181,6 +202,55 @@ class InteractionEngine:
                     matched_drug_term=drug_match
                 ))
         
+        # If no local JSON matches, check OpenFDA dynamically for allergies & text warnings
+        if not results:
+            from app.services.openfda_service import get_drug_detail
+            fda_res = get_drug_detail(drug)
+            
+            if fda_res.get('success') and fda_res.get('drug'):
+                drug_info = fda_res['drug']
+                norm_food = self._normalize(food)
+                found_allergy = False
+                
+                # Check ingredients (allergies)
+                act_ing = self._normalize(drug_info.get('active_ingredient', ''))
+                inact_ing = self._normalize(drug_info.get('inactive_ingredient', ''))
+                
+                if norm_food in act_ing or norm_food in inact_ing:
+                    results.append(InteractionResult(
+                        interaction_id=f"FDA-ALG-{drug.upper()}",
+                        food_name=food,
+                        drug_name=drug_info.get('brand_name', drug),
+                        drug_class='FDA Dynamic Check',
+                        severity='high',
+                        effect=f"Contains {food} as an ingredient. Potential for severe allergic reaction.",
+                        recommendation="Avoid this medication and consult your prescriber immediately.",
+                        evidence_level="strong",
+                        matched_food_term=food,
+                        matched_drug_term=drug
+                    ))
+                    found_allergy = True
+                
+                # Check interaction texts
+                if not found_allergy:
+                    inter_txt = self._normalize(drug_info.get('drug_interactions', ''))
+                    warn_txt = self._normalize(drug_info.get('warnings', ''))
+                    contra_txt = self._normalize(drug_info.get('contraindications', ''))
+                    
+                    if norm_food in inter_txt or norm_food in warn_txt or norm_food in contra_txt:
+                        results.append(InteractionResult(
+                            interaction_id=f"FDA-TXT-{drug.upper()}",
+                            food_name=food,
+                            drug_name=drug_info.get('brand_name', drug),
+                            drug_class='FDA Dynamic Check',
+                            severity='medium',
+                            effect=f"The FDA label for this drug mentions '{food}' in its warnings or interactions.",
+                            recommendation="Review the FDA drug label or consult a pharmacist to evaluate safely consuming this item.",
+                            evidence_level="moderate",
+                            matched_food_term=food,
+                            matched_drug_term=drug
+                        ))
+
         # Sort by severity (high first)
         severity_order = {'high': 0, 'medium': 1, 'low': 2, 'unknown': 3}
         results.sort(key=lambda x: severity_order.get(x.severity, 3))

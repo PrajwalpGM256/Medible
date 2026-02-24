@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { API_BASE_URL, API_CONFIG, ENDPOINTS, ROUTES } from '@/constants'
+import { API_BASE_URL, API_CONFIG, ENDPOINTS } from '@/constants'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -56,6 +56,8 @@ export const foodApi = {
 export const interactionApi = {
   check: (drug: string, food: string) =>
     api.get(ENDPOINTS.INTERACTIONS.CHECK, { params: { drug, food } }),
+  checkMultiple: (food: string, medications: string[]) =>
+    api.post(ENDPOINTS.INTERACTIONS.CHECK_MULTIPLE, { food, medications }),
   getByDrug: (name: string) => api.get(ENDPOINTS.INTERACTIONS.BY_DRUG(name)),
   getAll: () => api.get(ENDPOINTS.INTERACTIONS.ALL),
 }
@@ -74,9 +76,9 @@ export const userMedicationApi = {
 export const foodDiaryApi = {
   getToday: () => api.get(ENDPOINTS.FOOD_DIARY.TODAY),
   getByDate: (date: string) => api.get(ENDPOINTS.FOOD_DIARY.LIST, { params: { date } }),
-  getRange: (startDate: string, endDate: string) => 
+  getRange: (startDate: string, endDate: string) =>
     api.get(ENDPOINTS.FOOD_DIARY.LIST, { params: { start_date: startDate, end_date: endDate } }),
-  getSummary: (days: number = 7) => 
+  getSummary: (days: number = 7) =>
     api.get(ENDPOINTS.FOOD_DIARY.SUMMARY, { params: { days } }),
   add: (data: {
     food_name: string

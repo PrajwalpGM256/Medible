@@ -45,6 +45,7 @@ export interface Interaction {
   id: number
   drugName: string
   foodName: string
+  food?: string       // From getByDrug API payload
   foodCategory: string
   severity: Severity
   effect: string

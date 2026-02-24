@@ -24,6 +24,52 @@ class TestCheckInteraction:
         resp = client.get('/api/v1/interactions/check?food=grapefruit')
         assert resp.status_code == 400
 
+    def test_check_interaction_with_synonym(self, client):
+        # "grape juice" should map to "grapefruit" and trigger the interaction with "lipitor"
+        resp = client.get('/api/v1/interactions/check?food=grape%20juice&drug=lipitor')
+        assert resp.status_code == 200
+        data = resp.get_json()['data']
+        assert data['has_interaction'] is True
+        # Check that it matched grapefruit
+        assert any(i['food_matched'] == 'Grapefruit' for i in data['interactions'])
+
+    @patch('app.services.openfda_service.get_drug_detail')
+    def test_check_interaction_openfda_allergy(self, mock_fda, client):
+        # Mock OpenFDA response indicating peanut is an inactive ingredient
+        mock_fda.return_value = {
+            "success": True,
+            "drug": {
+                "brand_name": "TestDrug",
+                "inactive_ingredient": ["peanut oil", "water"]
+            }
+        }
+        resp = client.get('/api/v1/interactions/check?food=peanut&drug=TestDrug')
+        assert resp.status_code == 200
+        data = resp.get_json()['data']
+        assert data['has_interaction'] is True
+        # Check that the FDA allergy interaction was created
+        interactions = data['interactions']
+        assert any("FDA-ALG" in i['id'] for i in interactions)
+        assert any(i['severity'] == 'high' for i in interactions)
+
+    @patch('app.services.openfda_service.get_drug_detail')
+    def test_check_interaction_openfda_text_warning(self, mock_fda, client):
+        # Mock OpenFDA response with warning text matching food
+        mock_fda.return_value = {
+            "success": True,
+            "drug": {
+                "brand_name": "TestDrug",
+                "warnings": ["Do not take with st johns wort."]
+            }
+        }
+        resp = client.get('/api/v1/interactions/check?food=st%20johns%20wort&drug=TestDrug')
+        assert resp.status_code == 200
+        data = resp.get_json()['data']
+        assert data['has_interaction'] is True
+        interactions = data['interactions']
+        assert any("FDA-TXT" in i['id'] for i in interactions)
+        assert any(i['severity'] == 'medium' for i in interactions)
+
 
 class TestCheckMultiple:
     def test_check_multiple(self, client):

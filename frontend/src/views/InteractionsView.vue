@@ -57,7 +57,7 @@ const severityIcons = { high: AlertTriangle, moderate: Info, low: CheckCircle }
                 <div class="flex items-start justify-between">
                   <div class="flex items-center gap-2">
                     <component :is="severityIcons[interaction.severity]" :class="['h-5 w-5', SEVERITY_CONFIG[interaction.severity].textClass]" />
-                    <CardTitle class="text-lg">{{ interaction.drugName }} + {{ interaction.foodName }}</CardTitle>
+                    <CardTitle class="text-lg">{{ interaction.drugName }} + {{ interaction.food || interaction.foodName || 'Unknown Food' }}</CardTitle>
                   </div>
                   <span :class="['rounded-full px-2.5 py-0.5 text-xs font-medium', SEVERITY_CONFIG[interaction.severity].bgClass, SEVERITY_CONFIG[interaction.severity].textClass]">{{ SEVERITY_CONFIG[interaction.severity].label }}</span>
                 </div>
@@ -80,7 +80,7 @@ const severityIcons = { high: AlertTriangle, moderate: Info, low: CheckCircle }
               variant="gold"
               :class="['bg-card/80 dark:bg-card/60 backdrop-blur-md shadow-md transition-colors duration-200 hover:bg-teal-500/5 cursor-pointer', SEVERITY_CONFIG[severity].borderClass]"
             >
-              <CardHeader class="pb-2"><CardTitle class="text-lg">{{ interaction.drugName }} + {{ interaction.foodName }}</CardTitle></CardHeader>
+              <CardHeader class="pb-2"><CardTitle class="text-lg">{{ interaction.drugName }} + {{ interaction.food || interaction.foodName || 'Unknown Food' }}</CardTitle></CardHeader>
               <CardContent>
                 <p class="text-muted-foreground">{{ interaction.effect }}</p>
                 <div class="mt-3 rounded-lg bg-muted/50 p-3">

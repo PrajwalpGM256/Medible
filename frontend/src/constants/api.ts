@@ -24,6 +24,7 @@ export const ENDPOINTS = {
   },
   INTERACTIONS: {
     CHECK: '/interactions/check',
+    CHECK_MULTIPLE: '/interactions/check-multiple',
     BY_DRUG: (name: string) => `/interactions/drug/${encodeURIComponent(name)}`,
     ALL: '/interactions',
   },
