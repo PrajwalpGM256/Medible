@@ -35,4 +35,4 @@ jobs:
           USDA_API_KEY: ${{ secrets.USDA_API_KEY }}
           FLASK_ENV: production
         run: |
-          python seed_data.py
+          python seed_data.py --clear
