@@ -35,6 +35,13 @@ export const authApi = {
     api.post(ENDPOINTS.AUTH.REGISTER, data),
   logout: () => api.post(ENDPOINTS.AUTH.LOGOUT),
   getProfile: () => api.get(ENDPOINTS.AUTH.PROFILE),
+  updateProfile: (data: { first_name?: string; last_name?: string; email?: string }) =>
+    api.patch(ENDPOINTS.AUTH.UPDATE_PROFILE, data),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    api.put(ENDPOINTS.AUTH.CHANGE_PASSWORD, { current_password: currentPassword, new_password: newPassword }),
+  deleteAccount: (password: string) =>
+    api.delete(ENDPOINTS.AUTH.DELETE_ACCOUNT, { data: { password } }),
+  exportData: () => api.get(ENDPOINTS.AUTH.EXPORT_DATA),
 }
 
 // Drug APIs

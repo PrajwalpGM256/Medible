@@ -1,0 +1,8 @@
+﻿
+> frontend@0.0.0 type-check
+> vue-tsc --build
+
+src/stores/auth.ts(117,38): error TS2339: Property 'updateProfile' does not exist on type '{ login: (email: string, password: string) => Promise<AxiosResponse<any, any, {}>>; register: (data: { email: string; password: string; name?: string | undefined; first_name?: string | undefined; last_name?: string | undefined; }) => Promise<...>; logout: () => Promise<...>; getProfile: () => Promise<...>; }'.
+src/stores/auth.ts(132,21): error TS2339: Property 'changePassword' does not exist on type '{ login: (email: string, password: string) => Promise<AxiosResponse<any, any, {}>>; register: (data: { email: string; password: string; name?: string | undefined; first_name?: string | undefined; last_name?: string | undefined; }) => Promise<...>; logout: () => Promise<...>; getProfile: () => Promise<...>; }'.
+src/stores/auth.ts(146,21): error TS2339: Property 'deleteAccount' does not exist on type '{ login: (email: string, password: string) => Promise<AxiosResponse<any, any, {}>>; register: (data: { email: string; password: string; name?: string | undefined; first_name?: string | undefined; last_name?: string | undefined; }) => Promise<...>; logout: () => Promise<...>; getProfile: () => Promise<...>; }'.
+src/stores/auth.ts(161,38): error TS2339: Property 'exportData' does not exist on type '{ login: (email: string, password: string) => Promise<AxiosResponse<any, any, {}>>; register: (data: { email: string; password: string; name?: string | undefined; first_name?: string | undefined; last_name?: string | undefined; }) => Promise<...>; logout: () => Promise<...>; getProfile: () => Promise<...>; }'.

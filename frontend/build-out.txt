@@ -1,0 +1,12 @@
+﻿
+> frontend@0.0.0 build
+> run-p type-check "build-only {@}" --
+
+
+> frontend@0.0.0 type-check
+> vue-tsc --build
+
+
+> frontend@0.0.0 build-only
+> vite build
+
