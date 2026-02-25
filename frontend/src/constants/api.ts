@@ -13,6 +13,10 @@ export const ENDPOINTS = {
     FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
   },
+  ADMIN: {
+    USERS: '/admin/users',
+    USER: (id: number) => `/admin/users/${id}`,
+  },
   DRUGS: {
     SEARCH: '/drugs/search',
     DETAILS: (name: string) => `/drugs/${encodeURIComponent(name)}`,

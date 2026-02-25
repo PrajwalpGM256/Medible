@@ -56,6 +56,9 @@ function handleLogout() {
             </RouterLink>
           </template>
           <template v-else-if="route.path !== ROUTES.LOGIN && route.path !== ROUTES.REGISTER">
+            <RouterLink v-if="auth.user?.is_admin" :to="ROUTES.ADMIN" class="hidden sm:block text-sm font-medium text-muted-foreground transition-all hover:text-teal-400 hover:drop-shadow-[0_0_6px_rgba(20,184,166,0.6)] px-3 py-2">
+              Admin
+            </RouterLink>
             <RouterLink :to="ROUTES.PROFILE" class="hidden sm:block text-sm font-medium text-muted-foreground transition-all hover:text-teal-400 hover:drop-shadow-[0_0_6px_rgba(20,184,166,0.6)] px-3 py-2">
               Profile
             </RouterLink>
@@ -71,6 +74,19 @@ function handleLogout() {
     <div v-if="mobileMenuOpen" class="border-t border-border bg-background md:hidden">
       <div class="space-y-1 px-4 py-3">
         <template v-if="auth.isAuthenticated && route.path !== ROUTES.LOGIN && route.path !== ROUTES.REGISTER">
+          <RouterLink
+            v-if="auth.user?.is_admin"
+            :to="ROUTES.ADMIN"
+            :class="[
+              'block rounded-lg px-3 py-2 text-base font-medium',
+              route.path === ROUTES.ADMIN
+                ? `${ACTIVE_TAB_BG_COLOR} text-foreground font-semibold shadow`
+                : 'text-foreground hover:bg-accent'
+            ]"
+            @click="mobileMenuOpen = false"
+          >
+            Admin
+          </RouterLink>
           <RouterLink
             v-for="item in NAV_ITEMS"
             :key="item.to"

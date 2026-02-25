@@ -78,6 +78,7 @@ class User(db.Model):
             "last_name": self.last_name,
             "full_name": self.full_name,
             "is_active": self.is_active,
+            "is_admin": self.is_admin,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "medication_count": self.medications.count()
         }

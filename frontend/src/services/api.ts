@@ -111,6 +111,16 @@ export const foodDiaryApi = {
   update: (id: number, data: any) => api.patch(ENDPOINTS.FOOD_DIARY.UPDATE(id), data),
 }
 
+// Admin APIs
+export const adminApi = {
+  getUsers: (params?: { page?: number; per_page?: number; include_deleted?: boolean }) =>
+    api.get(ENDPOINTS.ADMIN.USERS, { params }),
+  createUser: (data: { email: string; password: string; first_name?: string; last_name?: string; is_admin?: boolean; is_active?: boolean }) =>
+    api.post(ENDPOINTS.ADMIN.USERS, data),
+  updateUser: (id: number, data: { is_active?: boolean; is_admin?: boolean }) =>
+    api.patch(ENDPOINTS.ADMIN.USER(id), data),
+}
+
 // Interaction History APIs
 export const interactionHistoryApi = {
   getAll: (limit: number = 50) =>

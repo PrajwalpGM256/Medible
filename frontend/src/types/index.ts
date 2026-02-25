@@ -9,6 +9,9 @@ export interface User {
   created_at?: string
   createdAt?: string // Alias for frontend compatibility
   is_active?: boolean
+  is_admin?: boolean
+  is_deleted?: boolean
+  last_login_at?: string
   medication_count?: number
 }
 

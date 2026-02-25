@@ -9,6 +9,7 @@ export const ROUTES = {
   INTERACTIONS: '/interactions',
   FOOD_DIARY: '/food-diary',
   PROFILE: '/profile',
+  ADMIN: '/admin',
 } as const
 
 export const ROUTE_NAMES = {
@@ -20,6 +21,7 @@ export const ROUTE_NAMES = {
   INTERACTIONS: 'interactions',
   FOOD_DIARY: 'food-diary',
   PROFILE: 'profile',
+  ADMIN: 'admin',
 } as const
 
 export const NAV_ITEMS: NavItem[] = [

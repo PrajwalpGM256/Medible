@@ -116,6 +116,68 @@ def manage_user(user_id: int):
     )
 
 
+@admin_bp.route('/users', methods=['POST'])
+@auth_required
+@admin_required
+@handle_exceptions
+def create_user():
+    """
+    Create a new user account (admin only)
+    
+    Request Body:
+        {
+            "email": "...",
+            "password": "...",
+            "first_name": "...",
+            "last_name": "...",
+            "is_admin": true/false,
+            "is_active": true/false
+        }
+    """
+    from app.services.auth_service import validate_email, validate_password
+    data = request.get_json()
+    if not data:
+        raise BadRequestError("Request body must be JSON")
+
+    email = data.get('email', '').strip().lower()
+    is_valid, error = validate_email(email)
+    if not is_valid:
+        raise ValidationError(error, {"field": "email"})
+
+    if User.find_by_email(email):
+        raise ValidationError("Email already registered", {"field": "email"})
+
+    password = data.get('password', '')
+    is_valid, error = validate_password(password)
+    if not is_valid:
+        raise ValidationError(error, {"field": "password"})
+
+    user = User(
+        email=email,
+        password=password,
+        first_name=data.get('first_name', '').strip() or None,
+        last_name=data.get('last_name', '').strip() or None
+    )
+    
+    user.is_admin = bool(data.get('is_admin', False))
+    if 'is_active' in data:
+        user.is_active = bool(data['is_active'])
+
+    db.session.add(user)
+    db.session.commit()
+
+    user_data = user.to_dict()
+    user_data['is_admin'] = user.is_admin
+    user_data['is_deleted'] = user.is_deleted
+    user_data['last_login_at'] = None
+
+    return api_response(
+        data={"user": user_data},
+        meta={"request_id": g.request_id},
+        status_code=201
+    )
+
+
 @admin_bp.route('/stats', methods=['GET'])
 @auth_required
 @admin_required
