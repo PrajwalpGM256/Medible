@@ -2,6 +2,7 @@
 import AppNavbar from '@/components/common/AppNavbar.vue'
 import AnimatedBackground from '@/components/animations/AnimatedBackground.vue'
 import UserManagementTable from '@/components/admin/UserManagementTable.vue'
+import AdminStatsOverview from '@/components/admin/AdminStatsOverview.vue'
 </script>
 
 <template>
@@ -18,6 +19,7 @@ import UserManagementTable from '@/components/admin/UserManagementTable.vue'
           </p>
         </div>
         
+        <AdminStatsOverview />
         <UserManagementTable />
       </div>
     </main>

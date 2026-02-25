@@ -16,6 +16,7 @@ export const ENDPOINTS = {
   ADMIN: {
     USERS: '/admin/users',
     USER: (id: number) => `/admin/users/${id}`,
+    STATS: '/admin/stats',
   },
   DRUGS: {
     SEARCH: '/drugs/search',

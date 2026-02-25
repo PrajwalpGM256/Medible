@@ -119,6 +119,7 @@ export const adminApi = {
     api.post(ENDPOINTS.ADMIN.USERS, data),
   updateUser: (id: number, data: { is_active?: boolean; is_admin?: boolean }) =>
     api.patch(ENDPOINTS.ADMIN.USER(id), data),
+  getStats: () => api.get(ENDPOINTS.ADMIN.STATS),
 }
 
 // Interaction History APIs

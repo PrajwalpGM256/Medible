@@ -22,6 +22,22 @@ export interface AuthState {
   error: string | null
 }
 
+export interface AdminStats {
+  users: {
+    total: number
+    active: number
+  }
+  content: {
+    total_medications: number
+    total_food_logs: number
+    total_interaction_checks: number
+    total_searches: number
+    total_interaction_reports: number
+  }
+  top_drugs: { drug_name: string; count: number }[]
+  top_foods: { food_name: string; count: number }[]
+}
+
 // Medications
 export interface Medication {
   id: number
