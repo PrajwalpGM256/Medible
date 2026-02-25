@@ -30,9 +30,10 @@ def get_summary():
     user_id = g.current_user.id
     today = date.today()
 
-    # Medication counts
+    # Medication counts and list
     total_meds = UserMedication.query.filter_by(user_id=user_id).count()
-    active_meds = UserMedication.query.filter_by(user_id=user_id, is_active=True).count()
+    active_meds_list = UserMedication.get_user_medications(user_id, active_only=True)
+    active_meds_count = len(active_meds_list)
 
     # Today's nutrition
     daily_totals = FoodLog.get_daily_totals(user_id, today)
@@ -59,7 +60,8 @@ def get_summary():
         data={
             "medications": {
                 "total": total_meds,
-                "active": active_meds
+                "active": active_meds_count,
+                "list": [med.to_dict() for med in active_meds_list]
             },
             "nutrition_today": daily_totals,
             "recent_checks": [c.to_dict() for c in recent_checks],
@@ -86,24 +88,35 @@ def get_alerts():
     today = date.today()
     alerts = []
 
-    # Check for drug recalls on user's active medications
+    # Check for drug recalls on user's active medications (in parallel to avoid timeouts)
+    import concurrent.futures
     active_meds = UserMedication.get_user_medications(user_id, active_only=True)
-    for med in active_meds:
+    
+    def fetch_recall(med):
         try:
-            recall_result = get_drug_recalls(med.drug_name, limit=1)
+            return med, get_drug_recalls(med.drug_name, limit=1)
+        except Exception:
+            return med, {}
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        futures = {executor.submit(fetch_recall, med): med for med in active_meds}
+        for future in concurrent.futures.as_completed(futures):
+            med, recall_result = future.result()
             if recall_result.get('success') and recall_result.get('count', 0) > 0:
                 for recall in recall_result.get('recalls', []):
+                    reason_text = recall.get('reason') or 'See details'
+                    if len(reason_text) > 150:
+                        reason_text = reason_text[:150] + "..."
+                        
                     alerts.append({
                         "type": "recall",
                         "severity": "high",
                         "medication": med.drug_name,
                         "title": f"Recall alert for {med.drug_name}",
-                        "message": recall.get('reason', 'See details'),
+                        "message": reason_text,
                         "classification": recall.get('classification'),
                         "date": recall.get('recall_date')
                     })
-        except Exception:
-            pass  # Don't fail the whole endpoint if one recall check fails
 
     # Check today's food logs for high-severity interactions
     from sqlalchemy import func
@@ -124,17 +137,18 @@ def get_alerts():
 
             try:
                 result = check_food_against_medications(food_name, med_names)
-                for warning in result.get('warnings', []):
-                    if warning.get('severity') == 'high':
-                        alerts.append({
-                            "type": "interaction",
-                            "severity": "high",
-                            "food": food_name,
-                            "medication": warning.get('drug', ''),
-                            "title": f"High-risk interaction: {food_name}",
-                            "message": warning.get('effect', 'Potential interaction detected'),
-                            "recommendation": warning.get('recommendation', '')
-                        })
+                # 'warnings' is a dict: {"high": [...], "medium": [...], "low": [...]}
+                high_warnings = result.get('warnings', {}).get('high', [])
+                for warning in high_warnings:
+                    alerts.append({
+                        "type": "interaction",
+                        "severity": "high",
+                        "food": food_name,
+                        "medication": warning.get('drug', ''),
+                        "title": f"High-risk interaction: {food_name.capitalize()}",
+                        "message": warning.get('effect', 'Potential interaction detected'),
+                        "recommendation": warning.get('recommendation', '')
+                    })
             except Exception:
                 pass
 
