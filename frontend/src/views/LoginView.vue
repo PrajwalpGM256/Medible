@@ -36,7 +36,7 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="relative flex h-screen flex-col overflow-hidden">
+  <div class="relative flex h-screen flex-col overflow-y-auto overflow-x-hidden scrollbar-hide">
     <AnimatedBackground />
     <AppNavbar />
     <div class="flex flex-1 items-center justify-center p-4">
