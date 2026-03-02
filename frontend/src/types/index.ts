@@ -38,6 +38,38 @@ export interface AdminStats {
   top_foods: { food_name: string; count: number }[]
 }
 
+export interface DashboardSummary {
+  medications: {
+    total: number
+    active: number
+    list: any[]
+  }
+  nutrition_today: {
+    calories: number
+    protein: number
+    carbs: number
+    fat: number
+  }
+  recent_checks: any[] // Interaction check history type
+  food_diary_streak: number
+  user: {
+    first_name: string
+    member_since: string
+  }
+}
+
+export interface DashboardAlert {
+  type: 'recall' | 'interaction'
+  severity: Severity
+  medication: string
+  title: string
+  message: string
+  food?: string
+  classification?: string
+  date?: string
+  recommendation?: string
+}
+
 // Medications
 export interface Medication {
   id: number

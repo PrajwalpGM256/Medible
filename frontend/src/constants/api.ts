@@ -18,6 +18,10 @@ export const ENDPOINTS = {
     USER: (id: number) => `/admin/users/${id}`,
     STATS: '/admin/stats',
   },
+  DASHBOARD: {
+    SUMMARY: '/dashboard/summary',
+    ALERTS: '/dashboard/alerts',
+  },
   DRUGS: {
     SEARCH: '/drugs/search',
     DETAILS: (name: string) => `/drugs/${encodeURIComponent(name)}`,

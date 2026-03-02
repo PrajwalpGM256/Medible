@@ -111,6 +111,12 @@ export const foodDiaryApi = {
   update: (id: number, data: any) => api.patch(ENDPOINTS.FOOD_DIARY.UPDATE(id), data),
 }
 
+// Dashboard APIs
+export const dashboardApi = {
+  getSummary: () => api.get(ENDPOINTS.DASHBOARD.SUMMARY),
+  getAlerts: () => api.get(ENDPOINTS.DASHBOARD.ALERTS, { timeout: 60000 }),
+}
+
 // Admin APIs
 export const adminApi = {
   getUsers: (params?: { page?: number; per_page?: number; include_deleted?: boolean }) =>

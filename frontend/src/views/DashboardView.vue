@@ -1,31 +1,32 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { Pill, AlertTriangle, Search, Plus, ArrowUpRight } from 'lucide-vue-next'
+import { Pill, AlertTriangle, Apple, Plus, ArrowUpRight, Flame, ShieldAlert, BadgeInfo } from 'lucide-vue-next'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import AppNavbar from '@/components/common/AppNavbar.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import { useAuthStore } from '@/stores/auth'
-import { useMedicationsStore } from '@/stores/medications'
-import { useInteractionHistoryStore } from '@/stores/interactionHistory'
+import { useDashboardStore } from '@/stores/dashboard'
 import { ROUTES, DASHBOARD_CONTENT } from '@/constants'
 import AnimatedBackground from '@/components/animations/AnimatedBackground.vue'
 
 const auth = useAuthStore()
-const meds = useMedicationsStore()
-const historyStore = useInteractionHistoryStore()
+const dashboard = useDashboardStore()
 
 onMounted(() => { 
-  // Smart fetch - only calls API if not already loaded
-  meds.fetchMedications()
-  historyStore.fetchHistory()
+  dashboard.fetchDashboardData()
 })
 
 const userFirstName = computed(() => {
+  if (dashboard.summary?.user?.first_name) return dashboard.summary.user.first_name
   if (auth.user?.first_name) return auth.user.first_name
   if (auth.userName) return auth.userName.split(' ')[0]
   return 'there'
+})
+
+const hasHighRiskAlerts = computed(() => {
+  return dashboard.alerts.some(alert => alert.severity === 'high')
 })
 </script>
 
@@ -35,110 +36,185 @@ const userFirstName = computed(() => {
     <AppNavbar />
     <main class="mx-auto w-full max-w-7xl flex-1 flex flex-col px-4 py-4 sm:px-6 lg:px-8 min-h-0 overflow-hidden">
       <!-- Header -->
-      <div class="mb-4">
-        <h1 class="text-xl font-bold text-foreground sm:text-2xl">{{ DASHBOARD_CONTENT.welcome }}, {{ userFirstName }}! </h1>
-        <p class="text-sm text-muted-foreground">Here's your medication overview</p>
-      </div>
-
-      <!-- Stats Row -->
-      <div class="mb-4 grid gap-3 sm:grid-cols-3">
-        <Card variant="gold" class="bg-card/80 dark:bg-card/60 backdrop-blur-md shadow-md hover:shadow-lg transition-shadow">
-          <CardContent class="flex items-center justify-between px-5 py-3">
-            <div class="flex-1">
-              <p class="text-3xl font-bold text-foreground">{{ meds.count }}</p>
-              <p class="text-sm text-muted-foreground">Medications</p>
-            </div>
-            <div class="rounded-xl bg-teal-500/20 p-3"><Pill class="h-7 w-7 text-teal-600 dark:text-teal-400" /></div>
-          </CardContent>
-        </Card>
-        <Card variant="gold" :class="['bg-card/80 dark:bg-card/60 backdrop-blur-md shadow-md hover:shadow-lg transition-shadow', { 'ring-2 ring-amber-500/50': historyStore.highRiskCount > 0 }]">
-          <CardContent class="flex items-center justify-between px-5 py-3">
-            <div class="flex-1">
-              <p class="text-3xl font-bold text-foreground">{{ historyStore.highRiskCount }}</p>
-              <p class="text-sm text-muted-foreground">High Risk Alerts</p>
-            </div>
-            <div class="rounded-xl bg-amber-500/20 p-3"><AlertTriangle class="h-7 w-7 text-amber-600 dark:text-amber-400" /></div>
-          </CardContent>
-        </Card>
-        <Card variant="gold" class="bg-card/80 dark:bg-card/60 backdrop-blur-md shadow-md hover:shadow-lg transition-shadow">
-          <CardContent class="flex items-center justify-between px-5 py-3">
-            <div class="flex-1">
-              <p class="text-3xl font-bold text-foreground">{{ historyStore.totalChecks }}</p>
-              <p class="text-sm text-muted-foreground">Interaction Checks</p>
-            </div>
-            <div class="rounded-xl bg-emerald-500/20 p-3"><Search class="h-7 w-7 text-emerald-600 dark:text-emerald-400" /></div>
-          </CardContent>
-        </Card>
+      <div class="mb-4 flex items-center justify-between">
+        <div>
+          <h1 class="text-xl font-bold text-foreground sm:text-2xl">{{ DASHBOARD_CONTENT.welcome }}, {{ userFirstName }}! </h1>
+          <p class="text-sm text-muted-foreground">Here is your daily health overview</p>
+        </div>
+        
+        <!-- Streak Badge -->
+        <div v-if="!dashboard.loading && dashboard.summary?.food_diary_streak" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 shadow-sm animate-fade-in">
+          <Flame class="h-5 w-5 text-orange-500" />
+          <div class="text-sm font-medium">
+            <span class="text-orange-600 dark:text-orange-400">{{ dashboard.summary.food_diary_streak }} Day</span>
+            <span class="text-muted-foreground ml-1 hidden sm:inline">Logging Streak! </span>
+          </div>
+        </div>
       </div>
 
       <!-- Main Content Grid -->
       <div class="grid gap-4 lg:grid-cols-2 flex-1 min-h-0">
-        <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col min-h-0">
-          <CardHeader class="flex flex-row items-center justify-between py-3 px-4">
-            <CardTitle class="text-base">{{ DASHBOARD_CONTENT.myMedications }}</CardTitle>
-            <RouterLink :to="ROUTES.MEDICATIONS"><Button variant="ghost" size="icon" class="h-7 w-7 group"><ArrowUpRight class="h-4 w-4 transition-transform duration-200 group-hover:rotate-45" /></Button></RouterLink>
-          </CardHeader>
-          <CardContent class="px-4 pb-4 pt-0 flex-1 flex flex-col min-h-0">
-            <LoadingSpinner v-if="meds.loading" />
-            <div v-else-if="meds.medications.length === 0" class="py-6 text-center">
-              <Pill class="mx-auto h-10 w-10 text-muted-foreground/50" />
-              <p class="mt-2 text-sm text-muted-foreground">{{ DASHBOARD_CONTENT.noMedications }}</p>
-              <RouterLink :to="ROUTES.MEDICATIONS"><Button class="mt-3" size="sm"><Plus class="mr-2 h-4 w-4" />Add Medication</Button></RouterLink>
-            </div>
-            <div v-else class="space-y-2 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
-              <div v-for="med in meds.medications" :key="med.id" class="flex items-center gap-2 rounded-md border border-border p-2 transition-all duration-200 hover:scale-[1.02] hover:shadow-md hover:border-teal-500/50 hover:bg-teal-500/5 cursor-pointer">
-                <div class="rounded-md bg-teal-500/10 p-1.5"><Pill class="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" /></div>
-                <div class="flex-1 truncate"><p class="text-sm font-medium text-foreground">{{ med.drugName }}</p><p class="text-xs text-muted-foreground">{{ med.dosage || 'No dosage set' }}</p></div>
+        <!-- Medications & Recents -->
+        <div class="flex flex-col gap-4 min-h-0">
+          <!-- Medication Summary -->
+          <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col flex-1 min-h-0">
+             <CardHeader class="flex flex-row items-center justify-between py-1.5 px-3">
+              <div class="flex items-center gap-2">
+                <div class="rounded-md bg-teal-500/10 p-1.5"><Pill class="h-4 w-4 text-teal-600 dark:text-teal-400" /></div>
+                <CardTitle class="text-base">{{ DASHBOARD_CONTENT.myMedications }}</CardTitle>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col min-h-0">
-          <CardHeader class="flex flex-row items-center justify-between py-3 px-4">
-            <CardTitle class="text-base">Recent Alerts</CardTitle>
-            <RouterLink :to="ROUTES.INTERACTIONS"><Button variant="ghost" size="icon" class="h-7 w-7 group"><ArrowUpRight class="h-4 w-4 transition-transform duration-200 group-hover:rotate-45" /></Button></RouterLink>
-          </CardHeader>
-          <CardContent class="px-4 pb-4 pt-0 flex-1 flex flex-col min-h-0">
-            <LoadingSpinner v-if="historyStore.loading" />
-            <div v-else-if="historyStore.history.length === 0" class="py-6 text-center">
-              <AlertTriangle class="mx-auto h-10 w-10 text-muted-foreground/50" />
-              <p class="mt-2 text-sm text-muted-foreground">No interaction checks yet</p>
-            </div>
-            <div v-else class="space-y-2 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
-              <div 
-                v-for="check in historyStore.history" 
-                :key="check.id" 
-                :class="['rounded-md border p-2 transition-all duration-200 hover:scale-[1.02] hover:shadow-md cursor-pointer', 
-                  check.max_severity === 'high' ? 'bg-red-500/5 border-red-500/30 hover:bg-red-500/10 hover:border-red-500/50' : 
-                  check.max_severity === 'moderate' ? 'bg-amber-500/5 border-amber-500/30 hover:bg-amber-500/10 hover:border-amber-500/50' : 
-                  'bg-yellow-500/5 border-yellow-500/30 hover:bg-yellow-500/10 hover:border-yellow-500/50']"
-              >
-                <div class="flex items-center justify-between gap-2">
-                  <div class="min-w-0 flex-1">
-                    <p :class="['text-sm font-medium truncate', 
-                      check.max_severity === 'high' ? 'text-red-600 dark:text-red-400' : 
-                      check.max_severity === 'moderate' ? 'text-amber-600 dark:text-amber-400' : 
-                      'text-yellow-600 dark:text-yellow-400']">
-                      {{ check.food_name }}
-                    </p>
-                    <p class="text-xs text-muted-foreground">
-                      {{ check.interaction_count }} interaction(s) · {{ check.medications_checked?.length || 0 }} medication(s)
-                    </p>
+              <RouterLink :to="ROUTES.MEDICATIONS"><Button variant="ghost" size="icon" class="h-7 w-7 group"><ArrowUpRight class="h-4 w-4 transition-transform duration-200 group-hover:rotate-45" /></Button></RouterLink>
+            </CardHeader>
+            <CardContent class="px-4 pb-4 pt-0 flex-1 flex flex-col min-h-0">
+              <div v-if="dashboard.loading" class="py-4 text-center text-sm text-muted-foreground">Loading...</div>
+              <div v-else-if="!dashboard.summary?.medications.total" class="py-4 text-center">
+                <p class="text-sm text-muted-foreground">No medications tracking yet.</p>
+                <RouterLink :to="ROUTES.MEDICATIONS"><Button class="mt-3" size="sm" variant="outline"><Plus class="mr-2 h-4 w-4" />Add First Medication</Button></RouterLink>
+              </div>
+              <div v-else class="space-y-2 flex-1 min-h-0 overflow-y-auto scrollbar-hide pr-1">
+                <RouterLink 
+                  v-for="med in dashboard.summary.medications.list" 
+                  :key="med.id"
+                  :to="ROUTES.MEDICATIONS" 
+                  class="flex items-center justify-between p-2 rounded-md border border-border bg-background/30 hover:bg-white/5 dark:hover:bg-white/10 transition-colors cursor-pointer group"
+                >
+                  <div class="flex items-center gap-3 truncate">
+                     <div class="h-2 w-2 rounded-full shrink-0 bg-teal-500"></div>
+                     <div class="flex flex-col truncate">
+                       <span class="text-sm font-medium truncate capitalize transition-colors">{{ med.drug_name }}</span>
+                       <span v-if="med.dosage" class="text-[10px] text-muted-foreground truncate">{{ med.dosage }} {{ med.frequency ? `• ${med.frequency}` : '' }}</span>
+                     </div>
                   </div>
-                  <span :class="['shrink-0 rounded-full px-2 py-0.5 text-xs font-medium',
-                    check.max_severity === 'high' ? 'bg-red-500/10 text-red-600 dark:text-red-400' : 
-                    check.max_severity === 'moderate' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 
-                    'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400']">
-                    {{ check.max_severity === 'high' ? 'High Risk' : check.max_severity === 'moderate' ? 'Moderate' : 'Low Risk' }}
+                </RouterLink>
+              </div>
+            </CardContent>
+          </Card>
+
+           <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col flex-1 min-h-0">
+            <CardHeader class="flex flex-row items-center justify-between py-1.5 px-3">
+               <CardTitle class="text-base">Recent Check History</CardTitle>
+               <RouterLink :to="ROUTES.INTERACTIONS"><Button variant="ghost" size="icon" class="h-7 w-7 group"><ArrowUpRight class="h-4 w-4 transition-transform duration-200 group-hover:rotate-45" /></Button></RouterLink>
+            </CardHeader>
+            <CardContent class="px-4 pb-4 pt-0 flex-1 flex flex-col min-h-0">
+              <LoadingSpinner v-if="dashboard.loading" />
+              <div v-else-if="!dashboard.summary?.recent_checks.length" class="py-6 text-center">
+                <Apple class="mx-auto h-10 w-10 text-muted-foreground/50" />
+                <p class="mt-2 text-sm text-muted-foreground">No interaction checks recently</p>
+              </div>
+              <div v-else class="space-y-2 flex-1 min-h-0 overflow-y-auto scrollbar-hide pr-1">
+                <RouterLink v-for="check in dashboard.summary.recent_checks" :key="check.id" :to="ROUTES.INTERACTIONS" class="flex items-center justify-between p-2 rounded-md border border-border bg-background/30 hover:bg-white/5 dark:hover:bg-white/10 transition-colors cursor-pointer group">
+                  <div class="flex items-center gap-3 truncate">
+                     <div :class="['h-2 w-2 rounded-full shrink-0', check.had_interaction ? (check.max_severity === 'high' ? 'bg-red-500' : 'bg-amber-500') : 'bg-emerald-500']"></div>
+                     <span class="text-sm font-medium truncate capitalize transition-colors">{{ check.food_name }}</span>
+                  </div>
+                   <span class="text-xs text-muted-foreground whitespace-nowrap">{{ new Date(check.checked_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) }}</span>
+                </RouterLink>
+              </div>
+            </CardContent>
+           </Card>
+        </div>
+
+        <!-- Right Column -->
+        <div class="flex flex-col gap-4 min-h-0">
+          <!-- Daily Macros (Thin Row) -->
+          <div class="grid grid-cols-4 gap-2 shrink-0">
+            <!-- Calories -->
+            <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col items-center justify-center py-2 px-1 relative overflow-hidden group">
+              <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span class="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Calories</span>
+              <span class="text-base font-bold leading-tight">{{ dashboard.loading ? '-' : dashboard.summary?.nutrition_today.calories || 0 }}</span>
+            </Card>
+            <!-- Protein -->
+            <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col items-center justify-center py-2 px-1 relative overflow-hidden group border-b-2 border-b-rose-500/50">
+              <div class="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span class="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Protein</span>
+              <span class="text-base font-bold leading-tight">{{ dashboard.loading ? '-' : dashboard.summary?.nutrition_today.protein || 0 }}<span class="text-[9px] font-normal text-muted-foreground ml-0.5">g</span></span>
+            </Card>
+            <!-- Carbs -->
+            <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col items-center justify-center py-2 px-1 relative overflow-hidden group border-b-2 border-b-amber-500/50">
+              <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span class="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Carbs</span>
+              <span class="text-base font-bold leading-tight">{{ dashboard.loading ? '-' : dashboard.summary?.nutrition_today.carbs || 0 }}<span class="text-[9px] font-normal text-muted-foreground ml-0.5">g</span></span>
+            </Card>
+            <!-- Fat -->
+            <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col items-center justify-center py-2 px-1 relative overflow-hidden group border-b-2 border-b-cyan-500/50">
+              <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span class="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Fat</span>
+              <span class="text-base font-bold leading-tight">{{ dashboard.loading ? '-' : dashboard.summary?.nutrition_today.fat || 0 }}<span class="text-[9px] font-normal text-muted-foreground ml-0.5">g</span></span>
+            </Card>
+          </div>
+
+          <!-- Active Alerts Panel -->
+          <Card variant="gold" :class="['bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col flex-1 min-h-0', { 'ring-2 ring-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]': hasHighRiskAlerts }]">
+             <CardHeader class="flex flex-row items-center justify-between py-1.5 px-3 border-b border-border/50 bg-background/30">
+            <div class="flex items-center gap-2">
+               <ShieldAlert :class="['h-5 w-5', hasHighRiskAlerts ? 'text-red-500 animate-pulse' : 'text-emerald-500']" />
+               <CardTitle class="text-base">Active Safety Alerts</CardTitle>
+            </div>
+            <BadgeInfo v-if="!dashboard.loading" class="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          
+          <CardContent class="p-0 flex-1 flex flex-col min-h-0 relative">
+            <LoadingSpinner v-if="dashboard.alertsLoading" class="my-auto py-10" />
+            
+            <div v-else-if="dashboard.alerts.length === 0" class="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in duration-500">
+              <div class="h-16 w-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-4">
+                <ShieldAlert class="h-8 w-8 text-emerald-500" />
+              </div>
+              <h3 class="text-lg font-semibold text-emerald-600 dark:text-emerald-400 border-none m-0 p-0">All Clear!</h3>
+              <p class="text-sm text-muted-foreground mt-2 max-w-[250px]">
+                No FDA recalls for your medications, and no severe interactions detected in your meals today.
+              </p>
+            </div>
+
+            <div v-else class="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 scrollbar-hide">
+              <div 
+                v-for="(alert, idx) in dashboard.alerts" 
+                :key="idx"
+                class="rounded-lg border p-3 flex flex-col gap-2 relative overflow-hidden"
+                 :class="[
+                  alert.severity === 'high' ? 'bg-red-500/10 border-red-500/30' : 
+                  'bg-amber-500/10 border-amber-500/30'
+                ]"
+              >
+                <!-- Alert Header -->
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex items-center gap-2">
+                    <AlertTriangle :class="['h-4 w-4 shrink-0', alert.severity === 'high' ? 'text-red-500' : 'text-amber-500']" />
+                    <span class="font-semibold text-sm" :class="alert.severity === 'high' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'">
+                      {{ alert.type === 'recall' ? 'FDA Drug Recall' : 'Severe Diet Interaction' }}
+                    </span>
+                  </div>
+                  <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full" :class="alert.severity === 'high' ? 'bg-red-500/20 text-red-700 dark:text-red-300' : 'bg-amber-500/20 text-amber-700 dark:text-amber-300'">
+                     {{ alert.type }}
                   </span>
                 </div>
-              </div>
-              <div v-if="historyStore.history.length === 0" class="py-3 text-center text-sm text-muted-foreground">
-                No alerts - all checks are safe!
+
+                <!-- Alert Body -->
+                <div>
+                   <h4 class="text-sm font-medium text-foreground leading-tight">{{ alert.title }}</h4>
+                   <p class="text-xs text-muted-foreground mt-1">{{ alert.message }}</p>
+                </div>
+
+                <!-- Alert Footer Tags -->
+                <div class="flex flex-wrap items-center gap-2 mt-1">
+                   <div class="text-[10px] font-medium bg-background px-2 py-1 rounded-md border border-border">
+                     💊 {{ alert.medication }}
+                   </div>
+                   <div v-if="alert.food" class="text-[10px] font-medium bg-background px-2 py-1 rounded-md border border-border capitalize">
+                     🍎 {{ alert.food }}
+                   </div>
+                </div>
+
+                <!-- Warning Recommendation -->
+                <div v-if="alert.recommendation" class="mt-2 text-xs font-medium p-2 rounded bg-background/50 border border-border/50 text-foreground">
+                  <span class="opacity-70">Action:</span> {{ alert.recommendation }}
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </main>
   </div>
