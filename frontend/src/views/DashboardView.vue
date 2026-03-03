@@ -34,7 +34,7 @@ const hasHighRiskAlerts = computed(() => {
   <div class="h-screen overflow-hidden bg-background flex flex-col">
     <AnimatedBackground />
     <AppNavbar />
-    <main class="mx-auto w-full max-w-7xl flex-1 flex flex-col px-4 py-4 sm:px-6 lg:px-8 min-h-0 overflow-hidden">
+    <main class="mx-auto w-full max-w-7xl flex-1 flex flex-col px-4 py-4 sm:px-6 lg:px-8 min-h-0 overflow-y-auto lg:overflow-hidden">
       <!-- Header -->
       <div class="mb-4 flex items-center justify-between">
         <div>
@@ -53,9 +53,9 @@ const hasHighRiskAlerts = computed(() => {
       </div>
 
       <!-- Main Content Grid -->
-      <div class="grid gap-4 lg:grid-cols-2 flex-1 min-h-0">
+      <div class="flex flex-col lg:grid gap-4 lg:grid-cols-2 lg:grid-rows-[auto_minmax(0,1fr)] flex-1 min-h-0 lg:min-h-0 min-h-max pb-4">
         <!-- Medications & Recents -->
-        <div class="flex flex-col gap-4 min-h-0">
+        <div class="flex flex-col gap-4 min-h-0 order-2 lg:order-none lg:col-start-1 lg:row-start-1 lg:row-span-2">
           <!-- Medication Summary -->
           <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col flex-1 min-h-0">
              <CardHeader class="flex flex-row items-center justify-between py-1.5 px-3">
@@ -114,10 +114,8 @@ const hasHighRiskAlerts = computed(() => {
            </Card>
         </div>
 
-        <!-- Right Column -->
-        <div class="flex flex-col gap-4 min-h-0">
-          <!-- Daily Macros (Thin Row) -->
-          <div class="grid grid-cols-4 gap-2 shrink-0">
+        <!-- Daily Macros (Thin Row) -->
+        <div class="grid grid-cols-4 gap-2 shrink-0 order-1 lg:order-none lg:col-start-2 lg:row-start-1">
             <!-- Calories -->
             <Card variant="gold" class="bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col items-center justify-center py-2 px-1 relative overflow-hidden group">
               <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -145,7 +143,7 @@ const hasHighRiskAlerts = computed(() => {
           </div>
 
           <!-- Active Alerts Panel -->
-          <Card variant="gold" :class="['bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col flex-1 min-h-0', { 'ring-2 ring-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]': hasHighRiskAlerts }]">
+          <Card variant="gold" :class="['bg-white/10 dark:bg-black/10 backdrop-blur-sm flex flex-col flex-1 min-h-[350px] lg:min-h-0 order-3 lg:order-none lg:col-start-2 lg:row-start-2', { 'ring-2 ring-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]': hasHighRiskAlerts }]">
              <CardHeader class="flex flex-row items-center justify-between py-1.5 px-3 border-b border-border/50 bg-background/30">
             <div class="flex items-center gap-2">
                <ShieldAlert :class="['h-5 w-5', hasHighRiskAlerts ? 'text-red-500 animate-pulse' : 'text-emerald-500']" />
@@ -214,7 +212,6 @@ const hasHighRiskAlerts = computed(() => {
             </div>
           </CardContent>
         </Card>
-        </div>
       </div>
     </main>
   </div>
@@ -225,6 +222,13 @@ const hasHighRiskAlerts = computed(() => {
   display: none;
 }
 .scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+main::-webkit-scrollbar {
+  display: none;
+}
+main {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }

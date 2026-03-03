@@ -101,6 +101,18 @@ function handleLogout() {
           >
             {{ item.label }}
           </RouterLink>
+          <RouterLink
+            :to="ROUTES.PROFILE"
+            :class="[
+              'block rounded-lg px-3 py-2 text-base font-medium',
+              route.path === ROUTES.PROFILE
+                ? `${ACTIVE_TAB_BG_COLOR} text-foreground font-semibold shadow`
+                : 'text-foreground hover:bg-accent'
+            ]"
+            @click="mobileMenuOpen = false"
+          >
+            Profile
+          </RouterLink>
         </template>
         <template v-else>
           <RouterLink :to="ROUTES.LOGIN" class="block rounded-lg px-3 py-2 text-base font-medium text-foreground hover:bg-accent" @click="mobileMenuOpen = false">Sign In</RouterLink>
