@@ -223,17 +223,17 @@ function fmtDecimal(val: any): string {
   <div class="h-screen flex flex-col overflow-hidden bg-background">
     <AnimatedBackground />
     <AppNavbar />
-    <main class="flex-1 flex flex-col overflow-hidden mx-auto w-full max-w-7xl px-4 py-4 sm:px-6">
+    <main class="flex-1 flex flex-col overflow-y-auto lg:overflow-hidden scrollbar-hide mx-auto w-full max-w-7xl px-4 py-4 sm:px-6">
 
       <!-- Header Row (Title, Date Nav, Log Button) -->
-      <div class="mb-6 flex items-center justify-between gap-4">
-        <div class="w-1/3">
-          <h1 class="text-2xl font-bold text-gradient-animate">Food & Nutrition</h1>
+      <div class="mb-4 lg:mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 lg:gap-4">
+        <div class="lg:w-1/3">
+          <h1 class="text-xl lg:text-2xl font-bold text-gradient-animate">Food & Nutrition</h1>
           <p class="text-sm text-muted-foreground">Track what you eat and explore nutritional info</p>
         </div>
 
         <!-- Date Nav centered -->
-        <div class="flex items-center justify-between w-[320px] bg-card/80 dark:bg-card/60 backdrop-blur-md rounded-xl border-2 border-gold px-4 py-2 shadow-sm shrink-0">
+        <div class="flex items-center justify-between w-full lg:w-[320px] bg-card/80 dark:bg-card/60 backdrop-blur-md rounded-xl border-2 border-gold px-4 py-2 shadow-sm shrink-0">
           <Button variant="ghost" size="icon" class="h-8 w-8 rounded-lg shrink-0 hover:bg-gold/20" @click="prevDay">
             <ChevronLeft class="h-5 w-5" />
           </Button>
@@ -246,7 +246,7 @@ function fmtDecimal(val: any): string {
           </Button>
         </div>
 
-        <div class="w-1/3 flex justify-end gap-3">
+        <div class="hidden lg:flex lg:w-1/3 justify-end gap-3">
           <Button
             v-if="displayDate !== 'Today'"
             variant="ghost"
@@ -262,10 +262,36 @@ function fmtDecimal(val: any): string {
       </div>
 
       <!-- Main Split Content -->
-      <div class="flex-1 flex gap-6 overflow-hidden">
+      <div class="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-6 min-h-0 lg:overflow-hidden">
         
         <!-- Left Column: Daily Summary -->
-        <div class="w-72 shrink-0 flex flex-col gap-3">
+        <div class="w-full lg:w-72 shrink-0 flex flex-col gap-3 order-1">
+          <!-- Mobile: Horizontal compact stats -->
+          <div class="grid grid-cols-4 gap-2 lg:hidden">
+            <div class="rounded-xl bg-orange-500/10 border border-orange-500/20 p-2 flex flex-col items-center justify-center">
+              <Flame class="h-4 w-4 text-orange-500 mb-1" />
+              <p class="text-sm font-bold text-foreground">{{ fmt(todayTotals.calories) }}</p>
+              <p class="text-[10px] text-muted-foreground uppercase">Calories</p>
+            </div>
+            <div class="rounded-xl bg-red-500/10 border border-red-500/20 p-2 flex flex-col items-center justify-center">
+              <Beef class="h-4 w-4 text-red-500 mb-1" />
+              <p class="text-sm font-bold text-foreground">{{ fmt(todayTotals.protein) }}g</p>
+              <p class="text-[10px] text-muted-foreground uppercase">Protein</p>
+            </div>
+            <div class="rounded-xl bg-amber-500/10 border border-amber-500/20 p-2 flex flex-col items-center justify-center">
+              <Wheat class="h-4 w-4 text-amber-500 mb-1" />
+              <p class="text-sm font-bold text-foreground">{{ fmt(todayTotals.carbs) }}g</p>
+              <p class="text-[10px] text-muted-foreground uppercase">Carbs</p>
+            </div>
+            <div class="rounded-xl bg-yellow-500/10 border border-yellow-500/20 p-2 flex flex-col items-center justify-center">
+              <Droplets class="h-4 w-4 text-yellow-500 mb-1" />
+              <p class="text-sm font-bold text-foreground">{{ fmt(todayTotals.fat) }}g</p>
+              <p class="text-[10px] text-muted-foreground uppercase">Fat</p>
+            </div>
+          </div>
+          
+          <!-- Desktop: Vertical full stats -->
+          <div class="hidden lg:flex lg:flex-col lg:gap-3">
           <div class="rounded-xl bg-orange-500/10 border border-orange-500/20 p-4 flex items-center gap-4">
             <div class="rounded-full bg-orange-500/20 p-2"><Flame class="h-5 w-5 text-orange-500" /></div>
             <div>
@@ -294,10 +320,11 @@ function fmtDecimal(val: any): string {
               <p class="text-xs text-muted-foreground uppercase font-medium tracking-wider">Fat</p>
             </div>
           </div>
+          </div>
         </div>
 
         <!-- Right Column: Food Logs by Meal -->
-        <div class="flex-1 overflow-y-auto scrollbar-hide pb-12 pr-2">
+        <div class="flex-1 lg:overflow-y-auto scrollbar-hide pb-12 lg:pr-2 order-2">
           <LoadingSpinner v-if="loading" class="py-8" />
           
           <div v-else-if="!todayLogs.length" class="py-12 text-center rounded-2xl border border-dashed border-border bg-card/10 h-full flex flex-col items-center justify-center">
@@ -366,6 +393,16 @@ function fmtDecimal(val: any): string {
           </div>
         </div>
       </div>
+      
+      <!-- Mobile FAB: Log Food Button -->
+      <Button 
+        variant="outline" 
+        hover="glow" 
+        class="lg:hidden fixed bottom-6 right-6 z-40 gap-2 border-2 border-gold shadow-lg bg-background" 
+        @click="showAddFood = true"
+      >
+        <Plus class="h-4 w-4" /> Log Food
+      </Button>
     </main>
 
     <!-- Add Food Dialog -->
